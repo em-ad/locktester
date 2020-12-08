@@ -19,25 +19,7 @@ import java.io.Serializable;
 
 public class LockTester implements Serializable {
 
-    private static BleStatus currentStatus = null;
-
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEvent(EventBean eventBean) {
-        Log.e("tag", "onEvent: " + eventBean );
-        //CONNECT
-        if(eventBean instanceof ChangesDeviceEvent){
-            currentStatus = ((ChangesDeviceEvent) eventBean).mBleStatus;
-            Log.e("tag", "onEvent: " + currentStatus.getLOCK_STA() );
-        } else if (eventBean instanceof ChangesDeviceListEvent){
-
-        } else if (eventBean instanceof OtherEvent){
-            Log.e("tag", "onEvent: " + ((OtherEvent) eventBean).mac );
-
-        } else if (eventBean instanceof WriteDataEvent){ //AUTH AND UNLOCK
-//            currentStatus = ((WriteDataEvent) eventBean).getmBase().
-            Log.e("tag", "onEvent: " + ((WriteDataEvent) eventBean).getmBase().Name );
-        }
-    }
+    public static BleStatus currentStatus = null;
 
     public static void connect(Context context, String address, String name) {
         BleStatus status = new BleStatus();
@@ -75,6 +57,6 @@ public class LockTester implements Serializable {
     }
 
     public static String getLockStatus(){
-        return currentStatus.getLOCK_STA() ? "LOCKED" : "UNLOCKED";
+        return !currentStatus.getLOCK_STA() ? "LOCKED" : "UNLOCKED";
     }
 }

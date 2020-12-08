@@ -31,6 +31,24 @@ public class MainActivity extends AppCompatActivity implements SearchListener.Sc
     ActivityMainBinding binding;
     private SearchBle mSearch;
 
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onEvent(EventBean eventBean) {
+        Log.e("tag", "onEvent: " + eventBean );
+        //CONNECT
+        if(eventBean instanceof ChangesDeviceEvent){
+            LockTester.currentStatus = ((ChangesDeviceEvent) eventBean).mBleStatus;
+            Log.e("tag", "onEvent: " + LockTester.currentStatus.getLOCK_STA() );
+        } else if (eventBean instanceof ChangesDeviceListEvent){
+
+        } else if (eventBean instanceof OtherEvent){
+            Log.e("tag", "onEvent: " + ((OtherEvent) eventBean).mac );
+
+        } else if (eventBean instanceof WriteDataEvent){ //AUTH AND UNLOCK
+//            currentStatus = ((WriteDataEvent) eventBean).getmBase().
+            Log.e("tag", "onEvent: " + ((WriteDataEvent) eventBean).getmBase().Name );
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
