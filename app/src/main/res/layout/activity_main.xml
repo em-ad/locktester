@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:background="#555"
+        android:orientation="vertical"
+        tools:context=".MainActivity">
+
+        <TextView
+            android:id="@+id/connect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:gravity="center"
+            android:text="Connect"
+            android:textColor="@color/white"
+            android:layout_marginBottom="12dp"
+            android:background="@android:drawable/screen_background_dark_transparent" />
+
+        <TextView
+            android:id="@+id/authenticate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:gravity="center"
+            android:text="Authenticate"
+            android:textColor="@color/white"
+            android:layout_marginBottom="12dp"
+            android:background="@android:drawable/screen_background_dark_transparent" />
+
+        <TextView
+            android:id="@+id/unlock"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:gravity="center"
+            android:text="Unlock"
+            android:textColor="@color/white"
+            android:layout_marginBottom="12dp"
+            android:background="@android:drawable/screen_background_dark_transparent" />
+
+        <TextView
+            android:id="@+id/getStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:gravity="center"
+            android:text="Get Status"
+            android:textColor="@color/white"
+            android:layout_marginBottom="12dp"
+            android:background="@android:drawable/screen_background_dark_transparent" />
+
+
+    </LinearLayout>
+</layout>

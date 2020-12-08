@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/lin"
+    android:layout_width="match_parent"
+    android:layout_height="40sp"
+    android:background="#d1d1d1"
+    android:gravity="center_vertical"
+    android:padding="5sp">
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="30sp"
+        android:layout_height="30sp" />
+
+    <TextView
+        android:id="@+id/tv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_weight="1"
+        android:text="LOCK TESTER"
+        android:textColor="#000"
+        android:textSize="16sp" />
+
+    <LinearLayout
+        android:id="@+id/button"
+        android:layout_width="30sp"
+        android:layout_height="30sp"
+        android:gravity="center">
+
+        <ImageView
+            android:layout_width="15sp"
+            android:layout_height="15sp"
+            android:src="@android:drawable/stat_notify_error" />
+    </LinearLayout>
+</LinearLayout>

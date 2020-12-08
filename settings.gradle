@@ -1,0 +1,3 @@
+include ':locklib'
+include ':app'
+rootProject.name = "LockTester"
