@@ -7,10 +7,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.lock.locklib.blelibrary.Adapter.BleAdapter;
 import com.lock.locklib.blelibrary.EventBean.ChangesDeviceEvent;
 import com.lock.locklib.blelibrary.EventBean.ChangesDeviceListEvent;
@@ -21,6 +23,7 @@ import com.lock.locklib.blelibrary.EventBean.SaveBleEvent;
 import com.lock.locklib.blelibrary.EventBean.WriteDataEvent;
 import com.lock.locklib.blelibrary.base.BleBase;
 import com.lock.locklib.blelibrary.base.BleStatus;
+import com.lock.locklib.blelibrary.main.BluetoothLeService;
 import com.lock.locklib.blelibrary.main.ServiceCommand;
 import com.lock.locklib.LockTester;
 import com.lock.locklib.blelibrary.notification.NotificationBean;
@@ -57,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
                     return;
                 toast("Unlocking");
                 LockTester.unlock(MainActivity.this, selectedEvent.mBleBase);
+                clickBleWithDelay();
             }
         });
         binding.connect.setOnClickListener(new View.OnClickListener() {
@@ -66,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
                     return;
                 toast("Connecting");
                 LockTester.connect(MainActivity.this, selectedEvent.mBleBase, selectedEvent.mBleStatus);
+                clickBleWithDelay();
             }
         });
         binding.authenticate.setOnClickListener(new View.OnClickListener() {
@@ -75,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
                     return;
                 toast("Authenticating");
                 LockTester.authenticate(MainActivity.this, selectedEvent.mBleBase);
+                clickBleWithDelay();
             }
         });
         binding.getStatus.setOnClickListener(new View.OnClickListener() {
@@ -82,10 +88,21 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
             public void onClick(View v) {
                 if (!checkEvent())
                     return;
-                toast("Fetching Status");
                 Toast.makeText(MainActivity.this, "Lock is now " + LockTester.getLockStatus(selectedEvent.mBleStatus), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void clickBleWithDelay() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (selectedEvent != null)
+                    bleClicked(selectedEvent);
+                else
+                    Toast.makeText(MainActivity.this, "select bluetooth device first!", Toast.LENGTH_SHORT).show();
+            }
+        }, 750);
     }
 
     private void initViews() {
@@ -137,10 +154,21 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
     @Override
     public void bleClicked(ChangesDeviceEvent event) {
         selectedEvent = event;
+        boolean exists = false;
+        for (int i = 0; i < BluetoothLeService.getSelf().mBleAdapter.mList.size(); i++) {
+            if (BluetoothLeService.getSelf().mBleAdapter.mList.get(i).changesData.mBleBase.Address.equals(event.mBleBase.Address)) {
+                exists = true;
+                if (BluetoothLeService.getSelf().mBleAdapter.mList.get(i).changesData.mBleStatus.state == 3)
+                    binding.selected.status.setText("LOCKED");
+                else if (BluetoothLeService.getSelf().mBleAdapter.mList.get(i).changesData.mBleStatus.state == 4)
+                    binding.selected.status.setText("UNLOCKED");
+            }
+        }
+        if (!exists) {
+            binding.selected.status.setText("DISCONNECTED");
+        }
         binding.selected.address.setText(selectedEvent.mBleBase.getAddress());
         binding.selected.name.setText(selectedEvent.mBleBase.getName());
         binding.selected.password.setText(selectedEvent.mBleBase.getPassWord());
-        binding.selected.root.setBackground(getResources().getDrawable(R.drawable.rounded_blue));
-
     }
 }

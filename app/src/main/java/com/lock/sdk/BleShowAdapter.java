@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.lock.locklib.blelibrary.EventBean.ChangesDeviceEvent;
+import com.lock.locklib.blelibrary.base.BleStatus;
 
 import java.util.ArrayList;
 
@@ -40,6 +41,10 @@ public class BleShowAdapter extends RecyclerView.Adapter<BleShowAdapter.ViewHold
             }
         });
 //        holder.tvRssi.setText(event.mBleBase.);
+    }
+
+    public void statusUpdate(BleStatus status){
+
     }
 
     public void setDataSet(ArrayList<ChangesDeviceEvent> dataSet) {

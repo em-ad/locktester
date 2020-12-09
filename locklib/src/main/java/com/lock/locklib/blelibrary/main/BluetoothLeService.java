@@ -16,8 +16,9 @@ import com.lock.locklib.blelibrary.notification.NotificationUtils;
 
 public class BluetoothLeService extends Service {
     private String Tag = "BluetoothLeService";
-    private BleAdapter mBleAdapter;
+    public BleAdapter mBleAdapter;
     private NotificationUtils notificationUtils;
+    private static BluetoothLeService self = null;
 
     @Nullable
     public IBinder onBind(Intent intent) {
@@ -28,6 +29,16 @@ public class BluetoothLeService extends Service {
         super.onCreate();
         Log.e(this.Tag, "onCreate");
         this.mBleAdapter = new BleAdapter(this);
+    }
+
+    @Override
+    public void onStart(Intent intent, int startId) {
+        super.onStart(intent, startId);
+        self = this;
+    }
+
+    public static BluetoothLeService getSelf() {
+        return self;
     }
 
     public int onStartCommand(Intent intent, int i, int i2) {

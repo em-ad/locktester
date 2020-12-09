@@ -9,9 +9,9 @@
         android:orientation="horizontal"
         android:layout_margin="8dp"
         android:id="@+id/root"
-        android:background="@drawable/box_grey"
+        android:background="@drawable/rounded_blue"
         android:padding="10dp"
-        android:weightSum="4">
+        android:weightSum="5">
 
         <TextView
             android:id="@+id/address"
@@ -38,9 +38,9 @@
             android:textSize="14sp" />
 
         <TextView
-            android:id="@+id/rssi"
+            android:id="@+id/status"
             android:layout_width="0dp"
-            android:layout_weight="0"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
             android:textSize="14sp" />
