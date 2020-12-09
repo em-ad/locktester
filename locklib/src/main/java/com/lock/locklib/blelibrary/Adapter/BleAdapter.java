@@ -22,6 +22,8 @@ import com.lock.locklib.blelibrary.search.SearchListener;
 import com.lock.locklib.blelibrary.sql.ChatDB;
 import com.lock.locklib.blelibrary.tool.BleSharedPreferences;
 import com.lock.locklib.blelibrary.tool.BleTool;
+
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -31,7 +33,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import com.lock.locklib.blelibrary.Adapter.BleItem;
 
 public class BleAdapter extends BluetoothGattCallback {
-    private static final String TAG = "BleAdapter";
+    private static final String TAG = "tag";
     private String Connecting = "";
     private ChangesDeviceListEvent changesBLE = new ChangesDeviceListEvent();
     private Context context;
@@ -57,11 +59,25 @@ public class BleAdapter extends BluetoothGattCallback {
     public void start() {
         this.searchBle.setListener(new SearchListener.ScanListener() {
             public void onLeScan(BleBase bleBase, BleStatus bleStatus) {
+                boolean existing = false;
+                ArrayList<BleBase> list = searchBle.sharedPreferences.getSaveBle().BaseList;
+                for (int i = 0; i < list.size(); i++) {
+                    if(list.get(i).Address.equals(bleBase.Address)) {
+                        existing = true;
+                    }
+                }
+                if(!existing) {
+                    list.add(bleBase);
+                    SaveBleEvent event1 = new SaveBleEvent();
+                    event1.BaseList = list;
+                    searchBle.sharedPreferences.setSaveBle(event1);
+                }
                 BleAdapter.this.connect(bleBase, bleStatus);
             }
         });
         this.searchBle.setDataListener(new SearchListener.ScanDataListener() {
             public void onLeScan(byte[] bArr, BleBase bleBase, BleStatus bleStatus) {
+                Log.e(TAG, "onLeScan: 3" );
             }
         });
         this.searchBle.setSearchHas(true);

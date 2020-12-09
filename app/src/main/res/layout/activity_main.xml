@@ -16,6 +16,19 @@
         tools:context=".MainActivity">
 
         <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:gravity="center"
+            android:text="Make Sure To Grant All Permissions!"
+            android:textColor="@color/white"
+            android:layout_marginTop="12dp" />
+
+        <include layout="@layout/item_ble"
+            android:id="@+id/selected"/>
+
+        <TextView
             android:id="@+id/connect"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -25,6 +38,7 @@
             android:text="Connect"
             android:textColor="@color/white"
             android:layout_marginBottom="12dp"
+            android:layout_marginTop="32dp"
             android:background="@android:drawable/screen_background_dark_transparent" />
 
         <TextView
@@ -63,6 +77,11 @@
             android:layout_marginBottom="12dp"
             android:background="@android:drawable/screen_background_dark_transparent" />
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/recycler"
+            />
 
     </LinearLayout>
 </layout>

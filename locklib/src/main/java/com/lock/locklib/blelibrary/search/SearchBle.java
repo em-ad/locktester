@@ -39,6 +39,9 @@ public class SearchBle {
             super.handleMessage(message);
             Bundle data = message.getData();
             BleBase bleBase = (BleBase) data.getParcelable(SearchBle.this.hanKey_Ble);
+            if (SearchBle.this.mSearchListener != null) {
+                SearchBle.this.mSearchListener.onLeScan(bleBase, new BleStatus());
+            }
             if (bleBase != null) {
                 byte[] byteArray = data.getByteArray(SearchBle.this.hanKey_scanRecord);
                 if (BleTool.ByteToString(byteArray).contains(BleTool.ByteToString(SearchBle.this.type))) {
@@ -110,7 +113,7 @@ public class SearchBle {
     };
     /* access modifiers changed from: private */
     public boolean isstart = false;
-    private BleTool mBleTool;
+    public BleTool mBleTool;
     private Context mContext;
     /* access modifiers changed from: private */
     public SearchListener.ScanListener mSearchListener;

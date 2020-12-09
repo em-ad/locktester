@@ -19,44 +19,21 @@ import java.io.Serializable;
 
 public class LockTester implements Serializable {
 
-    public static BleStatus currentStatus = null;
-
-    public static void connect(Context context, String address, String name) {
-        BleStatus status = new BleStatus();
-        status.Auto_Unlock = 1;
-        status.setConsignment(1);
-        status.setLOCK_STA(1);
-        status.setPOWER(100);
-        status.setVibration(1);
-        status.setState(-2);
-
-        BleBase bleBase = new BleBase();
-        bleBase.Address = address;
-        bleBase.Name = name;
-        bleBase.rssi = -60;
-        ServiceCommand.connect(context, bleBase, status);
+    public static void connect(Context context, BleBase base, BleStatus status) {
+        ServiceCommand.connect(context, base, status);
     }
 
-    public static void unlock(Context context, String address, String name, String password) {
-        BleBase bleBase = new BleBase();
-        bleBase.Address = address;
-        bleBase.inform = false;
-        bleBase.Name = name;
-        bleBase.rssi = -62;
-        bleBase.setPassWord(password);
-        ServiceCommand.send(context, bleBase, 1);
+    public static void unlock(Context context, BleBase base) {
+        ServiceCommand.send(context, base, 1);
     }
 
-    public static void authenticate(Context context, String address, String name, String password){
-        BleBase bleBase = new BleBase();
-        bleBase.Address = address;
-        bleBase.Name = name;
-        bleBase.setPassWord(password);
-        bleBase.rssi = -60;
+    public static void authenticate(Context context, BleBase bleBase){
+        BleBase bleBaseInner = bleBase;
+        bleBaseInner.setPassWord("123456");
         ServiceCommand.authenticated(context, bleBase);
     }
 
-    public static String getLockStatus(){
-        return !currentStatus.getLOCK_STA() ? "LOCKED" : "UNLOCKED";
+    public static String getLockStatus(BleStatus status){
+        return !status.getLOCK_STA() ? "LOCKED" : "UNLOCKED";
     }
 }
