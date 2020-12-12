@@ -1,6 +1,7 @@
 package com.lock.locklib;
 
 import android.content.Context;
+import android.os.CountDownTimer;
 import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
@@ -27,25 +28,62 @@ import javax.security.auth.DestroyFailedException;
 
 public class LockTester implements Serializable {
 
-    public static MutableLiveData<ChangesDeviceEvent> selectedEventLiveData = new MutableLiveData<>();
-    private static ArrayList<ChangesDeviceEvent> bleList;
+    private static MutableLiveData<ChangesDeviceEvent> selectedEventLiveData = new MutableLiveData<>();
+    private static MutableLiveData<ArrayList<ChangesDeviceEvent>> bleListLiveData = new MutableLiveData<>(new ArrayList<>());
+    private CountDownTimer listTimer;
 
-    public void prepare(){
+    public static MutableLiveData<ChangesDeviceEvent> getSelectedEventLiveData() {
+        return selectedEventLiveData;
+    }
+
+    public static MutableLiveData<ArrayList<ChangesDeviceEvent>> getBleListLiveData() {
+        return bleListLiveData;
+    }
+
+    public void prepare(SearchBle searcher) {
         EventTool.register(this);
+
+        listTimer = new CountDownTimer(1000, 1000) {
+
+            @Override
+            public void onTick(long millisUntilFinished) {
+
+            }
+
+            @Override
+            public void onFinish() {
+                ArrayList<ChangesDeviceEvent> events = new ArrayList<>();
+                for (int i = 0; i < searcher.sharedPreferences.getSaveBle().BaseList.size(); i++) {
+                    ChangesDeviceEvent event = new ChangesDeviceEvent(searcher.sharedPreferences.getSaveBle().BaseList.get(i), new BleStatus());
+                    events.add(event);
+                }
+                bleListLiveData.postValue(events);
+                this.start();
+            }
+
+        };
+
+        listTimer.start();
+    }
+
+    public void destroy(){
+        EventTool.unregister(this);
+        listTimer.cancel();
+        listTimer = null;
     }
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEvent(EventBean eventBean) {
         ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
-        if(selectedEvent == null)
+        if (selectedEvent == null)
             return;
-        if(eventBean instanceof ChangesDeviceListEvent){
-            bleList = ((ChangesDeviceListEvent) eventBean).bleList;
+        if (eventBean instanceof ChangesDeviceListEvent) {
+            bleListLiveData.postValue(((ChangesDeviceListEvent) eventBean).bleList);
+            ArrayList<ChangesDeviceEvent> bleList = bleListLiveData.getValue();
             if(bleList == null)
-                return;
-
+                bleList = new ArrayList<>();
             for (int i = 0; i < bleList.size(); i++) {
-                if(selectedEvent.getmBleBase().getAddress().equals(bleList.get(i).mBleBase.getAddress())){
+                if (selectedEvent.getmBleBase().getAddress().equals(bleList.get(i).mBleBase.getAddress())) {
                     BleStatus status = selectedEvent.getmBleStatus();
                     status.setState(bleList.get(i).mBleStatus.getState());
                     selectedEvent.setmBleStatus(status);
@@ -53,7 +91,7 @@ public class LockTester implements Serializable {
                     break;
                 }
             }
-        } else if(eventBean instanceof ChangesDeviceEvent){
+        } else if (eventBean instanceof ChangesDeviceEvent) {
             BleStatus status = selectedEvent.getmBleStatus();
             status.setState(((ChangesDeviceEvent) eventBean).getmBleStatus().getState());
             status.setLOCK_STA(((ChangesDeviceEvent) eventBean).getmBleStatus().LOCK_STA);
@@ -62,58 +100,32 @@ public class LockTester implements Serializable {
         }
     }
 
-    private static void fetchList(Context context){
-        ArrayList<BleBase> prefList = SearchBle.getInstance(context).sharedPreferences.getSaveBle().BaseList != null ? SearchBle.getInstance(context).sharedPreferences.getSaveBle().BaseList : new ArrayList<>();
-        if(bleList == null || bleList.size() == 0) {
-            ArrayList<ChangesDeviceEvent> res = new ArrayList<>();
-            for (int i = 0; i < prefList.size(); i++) {
-                res.add(new ChangesDeviceEvent(prefList.get(i), new BleStatus()));
-            }
-            bleList = res;
-        } else {
-            for (int i = 0; i < prefList.size(); i++) {
-                boolean found = false;
-                for (int j = 0; j < bleList.size(); j++) {
-                    if(bleList.get(j).getmBleBase().getAddress().equals(prefList.get(i).getAddress())){
-                        ChangesDeviceEvent old = bleList.get(j);
-                        bleList.remove(bleList.get(j));
-                        old.setmBleBase(prefList.get(i));
-                        bleList.add(old);
-                        found = true;
-                    }
-                }
-                if(!found)
-                    bleList.add(new ChangesDeviceEvent(prefList.get(i), new BleStatus()));
-            }
-        }
-    }
-
     public static void eventSelected(ChangesDeviceEvent event) {
-        ChangesDeviceEvent selectedEvent = event;
-        BleBase bleBaseInner = event.getmBleBase();
-        bleBaseInner.setPassWord("123456");
-        selectedEvent.setmBleBase(bleBaseInner);
-        selectedEventLiveData.postValue(selectedEvent);
+        selectedEventLiveData.postValue(event);
     }
 
     public static void connect(Context context) {
         ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
-        if(selectedEvent == null)
+        if (selectedEvent == null)
             return;
         ServiceCommand.connect(context, selectedEvent.getmBleBase(), selectedEvent.getmBleStatus());
     }
 
     public static void unlock(Context context) {
         ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
-        if(selectedEvent == null)
+        if (selectedEvent == null)
             return;
         ServiceCommand.send(context, selectedEvent.getmBleBase(), 1);
     }
 
     public static void authenticate(Context context) {
         ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
-        if(selectedEvent == null)
+        if (selectedEvent == null)
             return;
+        BleBase bleBaseInner = selectedEvent.getmBleBase();
+        bleBaseInner.setPassWord("123456");
+        selectedEvent.setmBleBase(bleBaseInner);
+        selectedEventLiveData.postValue(selectedEvent);
         ServiceCommand.authenticated(context, selectedEvent.getmBleBase());
     }
 
@@ -121,13 +133,13 @@ public class LockTester implements Serializable {
         ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
         if (selectedEvent == null)
             return "ERR";
-        switch (selectedEvent.getmBleStatus().getState()){
+        switch (selectedEvent.getmBleStatus().getState()) {
             case 1:
                 return "CONNECTED";
             case 3:
                 return "LOCKED";
             case 4:
-                if(selectedEvent.getmBleStatus().LOCK_STA == 0){
+                if (selectedEvent.getmBleStatus().LOCK_STA == 0) {
                     return "UNLOCKED";
                 } else {
                     return "LOCKED";

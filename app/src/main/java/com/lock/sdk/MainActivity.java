@@ -49,9 +49,9 @@ import static android.Manifest.permission.CAMERA;
 
 public class MainActivity extends AppCompatActivity implements ClickCallback {
 
-    ActivityMainBinding binding;
-    private SearchBle mSearch;
+    private ActivityMainBinding binding;
     private BleShowAdapter bleShowAdapter;
+    private LockTester tester;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,11 +60,12 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkPermissions();
         }
-        new LockTester().prepare();
+        tester = new LockTester();
+        tester.prepare(SearchBle.getInstance(this));
         initViews();
         initBle();
         setClickListeners();
-        LockTester.selectedEventLiveData.observe(this, new Observer<ChangesDeviceEvent>() {
+        LockTester.getSelectedEventLiveData().observe(this, new Observer<ChangesDeviceEvent>() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onChanged(ChangesDeviceEvent changesDeviceEvent) {
@@ -72,6 +73,12 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
                 binding.selected.address.setText("<" + changesDeviceEvent.mBleBase.getAddress() + ">");
                 binding.selected.name.setText(changesDeviceEvent.mBleBase.getName());
                 binding.selected.password.setText("pass :" + changesDeviceEvent.mBleBase.getPassWord());
+            }
+        });
+        LockTester.getBleListLiveData().observe(this, new Observer<ArrayList<ChangesDeviceEvent>>() {
+            @Override
+            public void onChanged(ArrayList<ChangesDeviceEvent> changesDeviceEvents) {
+                bleShowAdapter.setDataSet(changesDeviceEvents);
             }
         });
     }
@@ -110,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
             public void onClick(View v) {
                 if (!checkEvent())
                     return;
-                toast("Authenticating with pass=123456");
+                toast("Authenticating with password=123456");
                 LockTester.authenticate(MainActivity.this);
             }
         });
@@ -124,16 +131,6 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
         });
     }
 
-    private void clickBleWithDelay() {
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                if (LockTester.selectedEvent != null)
-//                    bleClicked(LockTester.selectedEvent);
-//            }
-//        }, 500);
-    }
-
     private void initViews() {
         bleShowAdapter = new BleShowAdapter(this);
         ((RecyclerView) findViewById(R.id.recycler)).setAdapter(bleShowAdapter);
@@ -141,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
     }
 
     private boolean checkEvent() {
-        if (LockTester.selectedEventLiveData.getValue() == null) {
+        if (LockTester.getSelectedEventLiveData().getValue() == null) {
             Toast.makeText(this, "select bluetooth device first!", Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -151,29 +148,13 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
     private void initBle() {
         NotificationBean notificationBean = new NotificationBean(R.mipmap.ic_launcher, MainActivity.class.getName());
         ServiceCommand.start(this, notificationBean);
-//        EventTool.register(this);
-        this.mSearch = SearchBle.getInstance(this);
-        this.mSearch.setSearchHas(true);
-        new CountDownTimer(1000, 300) {
+    }
 
-            @Override
-            public void onTick(long millisUntilFinished) {
-
-            }
-
-            @Override
-            public void onFinish() {
-                ArrayList<ChangesDeviceEvent> events = new ArrayList<>();
-                for (int i = 0; i < mSearch.sharedPreferences.getSaveBle().BaseList.size(); i++) {
-                    ChangesDeviceEvent event = new ChangesDeviceEvent(mSearch.sharedPreferences.getSaveBle().BaseList.get(i), new BleStatus());
-                    events.add(event);
-                }
-//                if (events.size() > 0 && events.size() != bleShowAdapter.getItemCount())
-                    bleShowAdapter.setDataSet(events);
-                this.start();
-            }
-
-        }.start();
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (tester != null)
+            tester.destroy();
     }
 
     private void toast(String text) {
