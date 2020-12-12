@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.BLUETOOTH;
+import static android.Manifest.permission.CAMERA;
 
 public class MainActivity extends AppCompatActivity implements ClickCallback {
 
@@ -69,8 +70,9 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
         if (checkSelfPermission(Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED ||
                 checkSelfPermission(Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED ||
                 checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
-                checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-            requestPermissions(new String[]{Manifest.permission.BLUETOOTH_ADMIN, BLUETOOTH, ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION}, 313);
+                checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+            requestPermissions(new String[]{Manifest.permission.BLUETOOTH_ADMIN, BLUETOOTH, ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION, CAMERA}, 313);
     }
 
     private void setClickListeners() {
