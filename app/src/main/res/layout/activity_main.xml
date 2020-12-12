@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center_vertical"
-        android:background="#555"
+        android:background="#353535"
         android:orientation="vertical"
         tools:context=".MainActivity">
 
@@ -24,7 +24,7 @@
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:gravity="center"
-            android:text="Make Sure To Grant All Permissions!"
+            android:text="Make Sure To Grant All Permissions!\n Make Sure to Turn on Bluetooth!"
             android:textColor="@color/white"
              />
 
@@ -38,7 +38,7 @@
             android:text="Connect"
             android:textColor="@color/white"
             android:layout_marginBottom="12dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="16dp"
             android:background="@android:drawable/screen_background_dark_transparent" />
 
         <TextView
@@ -76,6 +76,14 @@
             android:textColor="@color/white"
             android:layout_marginBottom="12dp"
             android:background="@android:drawable/screen_background_dark_transparent" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select a device:"
+            android:textColor="@color/white"
+            android:padding="12dp"
+            />
 
         <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"
