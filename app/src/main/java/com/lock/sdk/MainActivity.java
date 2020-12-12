@@ -3,10 +3,12 @@ package com.lock.sdk;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -49,7 +51,6 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
 
     ActivityMainBinding binding;
     private SearchBle mSearch;
-//    private ChangesDeviceEvent selectedEvent;
     private BleShowAdapter bleShowAdapter;
 
     @Override
@@ -63,6 +64,16 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
         initViews();
         initBle();
         setClickListeners();
+        LockTester.selectedEventLiveData.observe(this, new Observer<ChangesDeviceEvent>() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onChanged(ChangesDeviceEvent changesDeviceEvent) {
+                binding.selected.status.setText(LockTester.getLockStatus());
+                binding.selected.address.setText("<" + changesDeviceEvent.mBleBase.getAddress() + ">");
+                binding.selected.name.setText(changesDeviceEvent.mBleBase.getName());
+                binding.selected.password.setText("pass :" + changesDeviceEvent.mBleBase.getPassWord());
+            }
+        });
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -114,13 +125,13 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
     }
 
     private void clickBleWithDelay() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (LockTester.selectedEvent != null)
-                    bleClicked(LockTester.selectedEvent);
-            }
-        }, 500);
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                if (LockTester.selectedEvent != null)
+//                    bleClicked(LockTester.selectedEvent);
+//            }
+//        }, 500);
     }
 
     private void initViews() {
@@ -130,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
     }
 
     private boolean checkEvent() {
-        if (LockTester.selectedEvent == null) {
+        if (LockTester.selectedEventLiveData.getValue() == null) {
             Toast.makeText(this, "select bluetooth device first!", Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -172,21 +183,5 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
     @Override
     public void bleClicked(ChangesDeviceEvent event) {
         LockTester.eventSelected(event);
-//        LockTester.selectedEvent = event;
-        binding.selected.status.setText(LockTester.getLockStatus());
-        binding.selected.address.setText("<" + LockTester.selectedEvent.mBleBase.getAddress() + ">");
-        binding.selected.name.setText(LockTester.selectedEvent.mBleBase.getName());
-        binding.selected.password.setText("pass :" + LockTester.selectedEvent.mBleBase.getPassWord());
-        new CountDownTimer(500, 500){
-
-            @Override
-            public void onTick(long l) {
-            }
-
-            @Override
-            public void onFinish() {
-                bleClicked(LockTester.selectedEvent);
-            }
-        }.start();
     }
 }

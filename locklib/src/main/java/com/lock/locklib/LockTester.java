@@ -27,7 +27,7 @@ import javax.security.auth.DestroyFailedException;
 
 public class LockTester implements Serializable {
 
-    public static ChangesDeviceEvent selectedEvent;
+    public static MutableLiveData<ChangesDeviceEvent> selectedEventLiveData = new MutableLiveData<>();
     private static ArrayList<ChangesDeviceEvent> bleList;
 
     public void prepare(){
@@ -36,12 +36,11 @@ public class LockTester implements Serializable {
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEvent(EventBean eventBean) {
+        ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
+        if(selectedEvent == null)
+            return;
         if(eventBean instanceof ChangesDeviceListEvent){
-            int before = bleList != null ? bleList.size() : 0;
             bleList = ((ChangesDeviceListEvent) eventBean).bleList;
-            int after = bleList.size();
-            Log.e("tag", "onEvent: from " + before + " to " + after + " now >" + new Gson().toJson(bleList)  );
-
             if(bleList == null)
                 return;
 
@@ -50,6 +49,7 @@ public class LockTester implements Serializable {
                     BleStatus status = selectedEvent.getmBleStatus();
                     status.setState(bleList.get(i).mBleStatus.getState());
                     selectedEvent.setmBleStatus(status);
+                    selectedEventLiveData.postValue(selectedEvent);
                     break;
                 }
             }
@@ -58,6 +58,7 @@ public class LockTester implements Serializable {
             status.setState(((ChangesDeviceEvent) eventBean).getmBleStatus().getState());
             status.setLOCK_STA(((ChangesDeviceEvent) eventBean).getmBleStatus().LOCK_STA);
             selectedEvent.setmBleStatus(status);
+            selectedEventLiveData.postValue(selectedEvent);
         }
     }
 
@@ -88,32 +89,36 @@ public class LockTester implements Serializable {
     }
 
     public static void eventSelected(ChangesDeviceEvent event) {
-        selectedEvent = event;
+        ChangesDeviceEvent selectedEvent = event;
         BleBase bleBaseInner = event.getmBleBase();
         bleBaseInner.setPassWord("123456");
         selectedEvent.setmBleBase(bleBaseInner);
+        selectedEventLiveData.postValue(selectedEvent);
     }
 
     public static void connect(Context context) {
-        if (selectedEvent == null)
+        ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
+        if(selectedEvent == null)
             return;
         ServiceCommand.connect(context, selectedEvent.getmBleBase(), selectedEvent.getmBleStatus());
     }
 
     public static void unlock(Context context) {
-        if (selectedEvent == null)
+        ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
+        if(selectedEvent == null)
             return;
         ServiceCommand.send(context, selectedEvent.getmBleBase(), 1);
     }
 
     public static void authenticate(Context context) {
-        if (selectedEvent == null)
+        ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
+        if(selectedEvent == null)
             return;
-
         ServiceCommand.authenticated(context, selectedEvent.getmBleBase());
     }
 
     public static String getLockStatus() {
+        ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
         if (selectedEvent == null)
             return "ERR";
         switch (selectedEvent.getmBleStatus().getState()){
