@@ -59,8 +59,8 @@ public class LockTester implements Serializable {
         }
     }
 
-    private static void fetchList(ArrayList<BleBase> prefList){
-//        ArrayList<BleBase> prefList = SearchBle.getInstance(context).sharedPreferences.getSaveBle().BaseList != null ? SearchBle.getInstance(context).sharedPreferences.getSaveBle().BaseList : new ArrayList<>();
+    private static void fetchList(Context context){
+        ArrayList<BleBase> prefList = SearchBle.getInstance(context).sharedPreferences.getSaveBle().BaseList != null ? SearchBle.getInstance(context).sharedPreferences.getSaveBle().BaseList : new ArrayList<>();
         if(bleList == null || bleList.size() == 0) {
             ArrayList<ChangesDeviceEvent> res = new ArrayList<>();
             for (int i = 0; i < prefList.size(); i++) {

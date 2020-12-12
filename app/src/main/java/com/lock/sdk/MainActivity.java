@@ -172,8 +172,8 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
         LockTester.eventSelected(event);
 //        LockTester.selectedEvent = event;
         binding.selected.status.setText(LockTester.getLockStatus());
-        binding.selected.address.setText("address :" + LockTester.selectedEvent.mBleBase.getAddress());
-        binding.selected.name.setText("name :" + LockTester.selectedEvent.mBleBase.getName());
+        binding.selected.address.setText("<" + LockTester.selectedEvent.mBleBase.getAddress() + ">");
+        binding.selected.name.setText(LockTester.selectedEvent.mBleBase.getName());
         binding.selected.password.setText("pass :" + LockTester.selectedEvent.mBleBase.getPassWord());
         new CountDownTimer(500, 500){
 
