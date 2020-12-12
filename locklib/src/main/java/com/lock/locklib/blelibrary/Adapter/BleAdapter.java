@@ -8,6 +8,8 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.google.gson.Gson;
 import com.lock.locklib.blelibrary.EventBean.EventBean;
 import com.lock.locklib.blelibrary.EventBean.ChangesDeviceEvent;
 import com.lock.locklib.blelibrary.EventBean.ChangesDeviceListEvent;
@@ -24,6 +26,7 @@ import com.lock.locklib.blelibrary.tool.BleSharedPreferences;
 import com.lock.locklib.blelibrary.tool.BleTool;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -59,6 +62,7 @@ public class BleAdapter extends BluetoothGattCallback {
     public void start() {
         this.searchBle.setListener(new SearchListener.ScanListener() {
             public void onLeScan(BleBase bleBase, BleStatus bleStatus) {
+//                Log.e(TAG, "onLeScan BASE: " + new Gson().toJson(bleBase) );
                 boolean existing = false;
                 ArrayList<BleBase> list = searchBle.sharedPreferences.getSaveBle().BaseList;
                 for (int i = 0; i < list.size(); i++) {
@@ -72,12 +76,11 @@ public class BleAdapter extends BluetoothGattCallback {
                     event1.BaseList = list;
                     searchBle.sharedPreferences.setSaveBle(event1);
                 }
-                BleAdapter.this.connect(bleBase, bleStatus);
+//                BleAdapter.this.connect(bleBase, bleStatus);
             }
         });
         this.searchBle.setDataListener(new SearchListener.ScanDataListener() {
             public void onLeScan(byte[] bArr, BleBase bleBase, BleStatus bleStatus) {
-                Log.e(TAG, "onLeScan: 3" );
             }
         });
         this.searchBle.setSearchHas(true);
@@ -90,24 +93,23 @@ public class BleAdapter extends BluetoothGattCallback {
         Iterator<BleItem> it = this.mList.iterator();
         while (it.hasNext()) {
             String str = TAG;
-            Log.e(str, "" + bleStatus.state);
+            Log.e(str, "STATE >>>> " + bleStatus.state);
             if (it.next().isDevice(bleBase.getAddress())) {
-                Log.e(TAG, "connect");
                 return false;
             }
         }
-        Log.e(TAG, "connect_new");
         BluetoothDevice remoteDevice = this.mBleTool.GetAdapter().getRemoteDevice(bleBase.getAddress());
         if (remoteDevice == null) {
             return false;
         }
-        String str2 = TAG;
-        Log.e(str2, "device=" + remoteDevice.getName());
-        String str3 = TAG;
-        Log.e(str3, "device=" + remoteDevice.getAddress());
         this.Connecting = bleBase.getAddress();
         Context context2 = this.context;
         this.mList.add(new BleItem(context2, remoteDevice.connectGatt(context2, false, this), bleBase, bleStatus));
+        for (int i = 0; i < sharedPreferences.getSaveBle().BaseList.size(); i++) {
+            if(sharedPreferences.getSaveBle().BaseList.get(i).Address.equals(bleBase.Address)){
+                Log.e(TAG, "found: " + bleBase.Name + new Gson().toJson(bleStatus) );
+            }
+        }
         return true;
     }
 
@@ -245,11 +247,13 @@ public class BleAdapter extends BluetoothGattCallback {
         stopRSSI();
     }
 
+    private final static int STATE_CLOSED = 0;
+    private final static int STATE_CONNECTED = 2;
+
     public void onConnectionStateChange(BluetoothGatt bluetoothGatt, int i, int i2) {
         super.onConnectionStateChange(bluetoothGatt, i, i2);
         String str = TAG;
-        Log.e(str, "newState=" + i2);
-        if (i2 == 0) {
+        if (i2 == STATE_CLOSED) {
             if (bluetoothGatt.getDevice().getAddress().equals(this.Connecting)) {
                 this.Connecting = "";
             }
@@ -266,7 +270,7 @@ public class BleAdapter extends BluetoothGattCallback {
             Log.e(TAG, "STATE_DISCONNECTED_close");
             bluetoothGatt.close();
             EventTool.post(new OtherEvent(1, bluetoothGatt.getDevice().getAddress()));
-        } else if (i2 == 2) {
+        } else if (i2 == STATE_CONNECTED) {
             Iterator<BleItem> it2 = this.mList.iterator();
             while (it2.hasNext()) {
                 BleItem next2 = it2.next();
@@ -274,10 +278,6 @@ public class BleAdapter extends BluetoothGattCallback {
                     String str2 = TAG;
                     Log.e(str2, "STATE_CONNECTED" + next2.changesData.getmBleStatus().getState());
                     if (next2.changesData.getmBleStatus().getState() <= 1) {
-                        String str3 = TAG;
-                        Log.e(str3, "gatt=" + bluetoothGatt.getDevice().getName());
-                        String str4 = TAG;
-                        Log.e(str4, "gatt=" + bluetoothGatt.getDevice().getAddress());
                         next2.Connected();
                         return;
                     }

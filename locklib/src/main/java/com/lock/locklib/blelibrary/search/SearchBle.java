@@ -122,8 +122,8 @@ public class SearchBle {
     BluetoothAdapter.LeScanCallback scanCallback = new BluetoothAdapter.LeScanCallback() {
         public void onLeScan(BluetoothDevice bluetoothDevice, int i, byte[] bArr) {
             if (i >= SearchBle.this.minrssi && !TextUtils.isEmpty(bluetoothDevice.getName())) {
-                Log.e("abc", bluetoothDevice.getName() + "----------" + BleTool.ByteToString(bArr));
-                Log.e("abc", bluetoothDevice.getAddress() + "----------" + BleTool.ByteToString(bArr));
+//                Log.e("abc", bluetoothDevice.getName() + "----------" + BleTool.ByteToString(bArr));
+//                Log.e("abc", bluetoothDevice.getAddress() + "----------" + BleTool.ByteToString(bArr));
                 Bundle bundle = new Bundle();
                 BleBase bleBase = new BleBase();
                 bleBase.setName(bluetoothDevice.getName());
