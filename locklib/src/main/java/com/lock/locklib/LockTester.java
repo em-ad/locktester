@@ -104,12 +104,15 @@ public class LockTester implements Serializable {
         selectedEventLiveData.postValue(event);
     }
 
-    public static boolean eventSelected(String code) {
+    public static boolean eventSelected(String longCode) {
+        String code = longCode;
+        if(longCode.length() >= 12)
+        code = longCode.substring(longCode.length() - 12);
         if(getBleListLiveData().getValue() == null)
             return false;
         ArrayList<ChangesDeviceEvent> events = getBleListLiveData().getValue();
         for (int i = 0; i < events.size(); i++) {
-            if(events.get(i).getmBleBase().getAddress().equals(code)) {
+            if(events.get(i).getmBleBase().getAddress().replace(":","").equals(code) || events.get(i).getmBleBase().getAddress().equals(code)) {
                 eventSelected(events.get(i));
                 return true;
             }
