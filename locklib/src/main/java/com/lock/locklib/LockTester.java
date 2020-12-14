@@ -120,6 +120,21 @@ public class LockTester implements Serializable {
         return false;
     }
 
+    public static boolean deviceExists(String longCode) {
+        String code = longCode;
+        if(longCode.length() >= 12)
+            code = longCode.substring(longCode.length() - 12);
+        if(getBleListLiveData().getValue() == null)
+            return false;
+        ArrayList<ChangesDeviceEvent> events = getBleListLiveData().getValue();
+        for (int i = 0; i < events.size(); i++) {
+            if(events.get(i).getmBleBase().getAddress().replace(":","").toLowerCase().equals(code) || events.get(i).getmBleBase().getAddress().toLowerCase().equals(code)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static boolean connect(Context context) {
         ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
         if (selectedEvent == null)
