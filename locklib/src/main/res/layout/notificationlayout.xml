@@ -3,7 +3,7 @@
     android:id="@+id/lin"
     android:layout_width="match_parent"
     android:layout_height="40sp"
-    android:background="#d1d1d1"
+    android:background="#cdcdcd"
     android:gravity="center_vertical"
     android:padding="5sp">
 
@@ -18,7 +18,8 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:layout_weight="1"
-        android:text="LOCK TESTER"
+        android:fontFamily="sans-serif-condensed"
+        android:text="Searching for bluetooth devices..."
         android:textColor="#000"
         android:textSize="16sp" />
 
@@ -29,8 +30,11 @@
         android:gravity="center">
 
         <ImageView
-            android:layout_width="15sp"
-            android:layout_height="15sp"
-            android:src="@android:drawable/stat_notify_error" />
+            android:layout_width="30sp"
+            android:layout_height="30sp"
+            android:padding="4dp"
+            android:tint="#3b5998"
+            android:background="@drawable/oval_ble"
+            android:src="@android:drawable/stat_sys_data_bluetooth" />
     </LinearLayout>
 </LinearLayout>

@@ -163,6 +163,18 @@ public class LockTester implements Serializable {
         return true;
     }
 
+    public static boolean authenticate(Context context, String password) {
+        ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
+        if (selectedEvent == null)
+            return false;
+        BleBase bleBaseInner = selectedEvent.getmBleBase();
+        bleBaseInner.setPassWord(password);
+        selectedEvent.setmBleBase(bleBaseInner);
+        selectedEventLiveData.postValue(selectedEvent);
+        ServiceCommand.authenticated(context, selectedEvent.getmBleBase());
+        return true;
+    }
+
     public static String getLockStatus() {
         ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
         if (selectedEvent == null)
