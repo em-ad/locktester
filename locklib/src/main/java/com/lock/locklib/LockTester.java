@@ -115,18 +115,51 @@ public class LockTester implements Serializable {
         selectedEventLiveData.postValue(event);
     }
 
-    public static void connect(Context context) {
-        ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
-        if (selectedEvent == null)
-            return;
-        ServiceCommand.connect(context, selectedEvent.getmBleBase(), selectedEvent.getmBleStatus());
+    public static boolean eventSelected(String longCode) {
+        String code = longCode;
+        if(longCode.length() >= 12)
+        code = longCode.substring(longCode.length() - 12);
+        if(getBleListLiveData().getValue() == null)
+            return false;
+        ArrayList<ChangesDeviceEvent> events = getBleListLiveData().getValue();
+        for (int i = 0; i < events.size(); i++) {
+            if(events.get(i).getmBleBase().getAddress().replace(":","").toLowerCase().equals(code) || events.get(i).getmBleBase().getAddress().toLowerCase().equals(code)) {
+                eventSelected(events.get(i));
+                return true;
+            }
+        }
+        return false;
     }
 
-    public static void unlock(Context context) {
+    public static boolean deviceExists(String longCode) {
+        String code = longCode;
+        if(longCode.length() >= 12)
+            code = longCode.substring(longCode.length() - 12);
+        if(getBleListLiveData().getValue() == null)
+            return false;
+        ArrayList<ChangesDeviceEvent> events = getBleListLiveData().getValue();
+        for (int i = 0; i < events.size(); i++) {
+            if(events.get(i).getmBleBase().getAddress().replace(":","").toLowerCase().equals(code) || events.get(i).getmBleBase().getAddress().toLowerCase().equals(code)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean connect(Context context) {
         ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
         if (selectedEvent == null)
-            return;
+            return false;
+        ServiceCommand.connect(context, selectedEvent.getmBleBase(), selectedEvent.getmBleStatus());
+        return true;
+    }
+
+    public static boolean unlock(Context context) {
+        ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
+        if (selectedEvent == null)
+            return false;
         ServiceCommand.send(context, selectedEvent.getmBleBase(), 1);
+        return true;
     }
 
     public static void getStatus(Context context){
@@ -136,15 +169,28 @@ public class LockTester implements Serializable {
         ServiceCommand.send(context, selectedEvent.getmBleBase(), -1);
     }
 
-    public static void authenticate(Context context) {
+    public static boolean authenticate(Context context) {
         ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
         if (selectedEvent == null)
-            return;
+            return false;
         BleBase bleBaseInner = selectedEvent.getmBleBase();
         bleBaseInner.setPassWord("123456");
         selectedEvent.setmBleBase(bleBaseInner);
         selectedEventLiveData.postValue(selectedEvent);
         ServiceCommand.authenticated(context, selectedEvent.getmBleBase());
+        return true;
+    }
+
+    public static boolean authenticate(Context context, String password) {
+        ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
+        if (selectedEvent == null)
+            return false;
+        BleBase bleBaseInner = selectedEvent.getmBleBase();
+        bleBaseInner.setPassWord(password);
+        selectedEvent.setmBleBase(bleBaseInner);
+        selectedEventLiveData.postValue(selectedEvent);
+        ServiceCommand.authenticated(context, selectedEvent.getmBleBase());
+        return true;
     }
 
     public static String getLockStatus() {

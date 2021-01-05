@@ -171,5 +171,6 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
     @Override
     public void bleClicked(ChangesDeviceEvent event) {
         LockTester.eventSelected(event);
+//        LockTester.eventSelected("0787f830022f2761");
     }
 }
