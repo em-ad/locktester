@@ -52,12 +52,23 @@ public class LockTester implements Serializable {
 
             @Override
             public void onFinish() {
-                ArrayList<ChangesDeviceEvent> events = new ArrayList<>();
+                ArrayList<ChangesDeviceEvent> orig = bleListLiveData.getValue();
+//                ArrayList<ChangesDeviceEvent> events = new ArrayList<>();
                 for (int i = 0; i < searcher.sharedPreferences.getSaveBle().BaseList.size(); i++) {
-                    ChangesDeviceEvent event = new ChangesDeviceEvent(searcher.sharedPreferences.getSaveBle().BaseList.get(i), new BleStatus());
-                    events.add(event);
+                    BleStatus status = new BleStatus();
+                    boolean found = false;
+                    for (int j = 0; j < orig.size(); j++) {
+                        if(orig.get(j).getmBleBase().getAddress().equals(searcher.sharedPreferences.getSaveBle().BaseList.get(i).getAddress())){
+                            status = orig.get(j).getmBleStatus();
+                            found = true;
+                            break;
+                        }
+                    }
+                    ChangesDeviceEvent event = new ChangesDeviceEvent(searcher.sharedPreferences.getSaveBle().BaseList.get(i), status);
+                    if(!found)
+                        orig.add(event);
                 }
-                bleListLiveData.postValue(events);
+                bleListLiveData.postValue(orig);
                 this.start();
             }
 
@@ -118,6 +129,13 @@ public class LockTester implements Serializable {
         ServiceCommand.send(context, selectedEvent.getmBleBase(), 1);
     }
 
+    public static void getStatus(Context context){
+        ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
+        if (selectedEvent == null)
+            return;
+        ServiceCommand.send(context, selectedEvent.getmBleBase(), -1);
+    }
+
     public static void authenticate(Context context) {
         ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
         if (selectedEvent == null)
@@ -134,20 +152,27 @@ public class LockTester implements Serializable {
         if (selectedEvent == null)
             return "ERR";
         switch (selectedEvent.getmBleStatus().getState()) {
+            case -3:
+                return "AUTHENTICATION_FAILED";
             case 1:
                 return "CONNECTED";
+            case 0:
+                return "CONNECTING";
+            case 2:
+                return "NEW";
             case 3:
-                return "LOCKED";
+                return "AUTHENTICATED";
             case 4:
                 if (selectedEvent.getmBleStatus().LOCK_STA == 0) {
                     return "UNLOCKED";
                 } else {
                     return "LOCKED";
                 }
+            case -1:
             case -2:
                 return "DISCONNECTED";
             default:
-                return "UNKNOWN";
+                return "UNKNOWN " + selectedEvent.getmBleStatus().getState();
         }
     }
 }

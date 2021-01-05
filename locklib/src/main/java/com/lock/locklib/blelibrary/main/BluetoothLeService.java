@@ -46,6 +46,9 @@ public class BluetoothLeService extends Service {
         if (intent != null && !TextUtils.isEmpty(intent.getAction())) {
             String action = intent.getAction();
             char c = 65535;
+            if(action.equals(ServiceCommand.GET_STATUS)){
+                c = 99;
+            }
             switch (action.hashCode()) {
                 case -1370382770:
                     if (action.equals(ServiceCommand.CONNECT_ACTION_START)) {
@@ -109,6 +112,9 @@ public class BluetoothLeService extends Service {
                     break;
                 case 3:
                     this.mBleAdapter.sendType((BleBase) intent.getParcelableExtra(ServiceCommand.CONNECT_DATA_BASE), intent.getIntExtra(ServiceCommand.CONNECT_DATA_TYPE, 0));
+                    break;
+                case 99:
+                    this.mBleAdapter.sendType((BleBase) intent.getParcelableExtra(ServiceCommand.CONNECT_DATA_BASE), -1);
                     break;
                 case 4:
                     this.mBleAdapter.sendToken((BleBase) intent.getParcelableExtra(ServiceCommand.CONNECT_DATA_BASE));

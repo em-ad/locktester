@@ -159,6 +159,12 @@ public class BleItem {
         }
     }
 
+    public void getStatus() {
+        if (this.changesData.getmBleStatus().getToken() != null) {
+            EventTool.post(new WriteDataEvent(this.changesData.getmBleBase(), SendDataAnalysis.SendOther(this.context, this, -1)));
+        }
+    }
+
     public void Modify(String str, final String str2) {
         if (this.changesData.getmBleStatus().getToken() != null) {
             this.password = str2;
@@ -195,14 +201,13 @@ public class BleItem {
         BluetoothGatt bluetoothGatt;
         BluetoothGattService service;
         BluetoothGattCharacteristic characteristic;
-        Log.e(TAG, "LostWriteData");
         if (bArr != null && (bluetoothGatt = this.mBluetoothGatt) != null && (service = bluetoothGatt.getService(SampleGattAttributes.WriteServiceUUID)) != null && (characteristic = service.getCharacteristic(SampleGattAttributes.WriteCharacteristicUUID)) != null) {
             characteristic.getWriteType();
             characteristic.setValue(bArr);
             characteristic.setWriteType(1);
             boolean writeCharacteristic = this.mBluetoothGatt.writeCharacteristic(characteristic);
             String str = TAG;
-            Log.i(str, writeCharacteristic + "-data=" + BleTool.ByteToString(bArr));
+            Log.e(str, writeCharacteristic + " WRITING LostWriteData " + BleTool.ByteToString(bArr));
         }
     }
 

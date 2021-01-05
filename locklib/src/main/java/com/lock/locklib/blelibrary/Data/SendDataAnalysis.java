@@ -74,7 +74,9 @@ public class SendDataAnalysis {
 
     public static byte[] SendOther(Context context, BleItem bleItem, int i) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        if (i == 1) {
+        if (i == -1){
+            byteArrayOutputStream.write(BleCommon.mStatus, 0, BleCommon.mStatus.length);
+        } else if (i == 1) {
             byteArrayOutputStream.write(BleCommon.mUnlock, 0, BleCommon.mUnlock.length);
             ReadDataAnalysis.saveChat(context, bleItem.changesData.getmBleBase().getAddress(), 1);
         } else if (i == 2) {

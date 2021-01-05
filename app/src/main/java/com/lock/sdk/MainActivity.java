@@ -126,7 +126,8 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
             public void onClick(View v) {
                 if (!checkEvent())
                     return;
-                Toast.makeText(MainActivity.this, "Lock is now " + LockTester.getLockStatus(), Toast.LENGTH_SHORT).show();
+                LockTester.getStatus(MainActivity.this);
+//                Toast.makeText(MainActivity.this, "Lock is now " + LockTester.getLockStatus(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -135,6 +136,12 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
         bleShowAdapter = new BleShowAdapter(this);
         ((RecyclerView) findViewById(R.id.recycler)).setAdapter(bleShowAdapter);
         ((RecyclerView) findViewById(R.id.recycler)).setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        ServiceCommand.stop(this);
     }
 
     private boolean checkEvent() {
