@@ -56,12 +56,6 @@ public class LockTester implements Serializable {
 //                ArrayList<ChangesDeviceEvent> events = new ArrayList<>();
                 for (int i = 0; i < searcher.sharedPreferences.getSaveBle().BaseList.size(); i++) {
                     BleStatus status = new BleStatus();
-<<<<<<< HEAD
-                    if(selectedEventLiveData.getValue() != null && searcher.sharedPreferences.getSaveBle().BaseList.get(i).getAddress().equals(selectedEventLiveData.getValue().getmBleBase().getAddress()))
-                        status = selectedEventLiveData.getValue().getmBleStatus();
-                    ChangesDeviceEvent event = new ChangesDeviceEvent(searcher.sharedPreferences.getSaveBle().BaseList.get(i), status);
-                    events.add(event);
-=======
                     boolean found = false;
                     for (int j = 0; j < orig.size(); j++) {
                         if(orig.get(j).getmBleBase().getAddress().equals(searcher.sharedPreferences.getSaveBle().BaseList.get(i).getAddress())){
@@ -73,7 +67,6 @@ public class LockTester implements Serializable {
                     ChangesDeviceEvent event = new ChangesDeviceEvent(searcher.sharedPreferences.getSaveBle().BaseList.get(i), status);
                     if(!found)
                         orig.add(event);
->>>>>>> d8be03be03bb7b9bcc212223702c1f00c8ac04e9
                 }
                 bleListLiveData.postValue(orig);
                 this.start();
