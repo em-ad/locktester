@@ -146,6 +146,14 @@ public class LockTester implements Serializable {
         return true;
     }
 
+    public static boolean disconnect(Context context) {
+        ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
+        if (selectedEvent == null)
+            return false;
+        ServiceCommand.disconnect(context, selectedEvent.getmBleBase());
+        return true;
+    }
+
     public static boolean unlock(Context context) {
         ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
         if (selectedEvent == null)
