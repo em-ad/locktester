@@ -3,6 +3,7 @@ package com.lock.locklib.blelibrary.main;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+
 import com.lock.locklib.blelibrary.base.BleBase;
 import com.lock.locklib.blelibrary.base.BleStatus;
 import com.lock.locklib.blelibrary.notification.NotificationBean;
@@ -22,6 +23,7 @@ public class ServiceCommand {
     public static final String CONNECT_DATA_OLD_PW = "CONNECT_DATA_OLD_PW";
     public static final String CONNECT_DATA_STATUS = "CONNECT_DATA_Status";
     public static final String CONNECT_DATA_TYPE = "CONNECT_DATA_TYPE";
+    public static final String GET_STATUS = "GET_STATUS";
 
     private static void startService(Context context, Intent intent) {
         if (Build.VERSION.SDK_INT >= 26) {
@@ -59,7 +61,10 @@ public class ServiceCommand {
 
     public static void send(Context context, BleBase bleBase, int i) {
         Intent intent = new Intent(context, BluetoothLeService.class);
-        intent.setAction(CONNECT_ACTION_SEND);
+        if (i != -1)
+            intent.setAction(CONNECT_ACTION_SEND);
+        else
+            intent.setAction(GET_STATUS);
         intent.putExtra(CONNECT_DATA_BASE, bleBase);
         intent.putExtra(CONNECT_DATA_TYPE, i);
         startService(context, intent);

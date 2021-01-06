@@ -37,7 +37,7 @@ public class ReadDataAnalysis {
         if (bArr.length >= 16) {
             Log.i(TAG, "加密数据=" + BleTool.ByteToString(bArr));
             byte[] read2 = BleCommon.read(bArr);
-            Log.i(TAG, "解密数据=" + BleTool.ByteToString(read2));
+            Log.e(TAG, "BYTES READ =" + BleTool.ByteToString(read2));
             byte b = read2[0];
             if (b != 2) {
                 if (b == 5) {

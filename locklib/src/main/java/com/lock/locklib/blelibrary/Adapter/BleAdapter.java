@@ -140,7 +140,15 @@ public class BleAdapter extends BluetoothGattCallback {
     }
 
     public void sendType(BleBase bleBase, int i) {
-        if (i == 1) {
+        if (i == -1) {
+            Iterator<BleItem> it = this.mList.iterator();
+            while (it.hasNext()) {
+                BleItem next = it.next();
+                if (next.isDevice(bleBase.getAddress())) {
+                    next.getStatus();
+                }
+            }
+        } else if (i == 1) {
             Iterator<BleItem> it = this.mList.iterator();
             while (it.hasNext()) {
                 BleItem next = it.next();
