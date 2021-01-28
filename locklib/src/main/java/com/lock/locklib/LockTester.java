@@ -31,6 +31,8 @@ public class LockTester implements Serializable {
     private static MutableLiveData<ChangesDeviceEvent> selectedEventLiveData = new MutableLiveData<>();
     private static MutableLiveData<ArrayList<ChangesDeviceEvent>> bleListLiveData = new MutableLiveData<>(new ArrayList<>());
     private CountDownTimer listTimer;
+    private final static int UNLOCK_CODE = 1;
+    private final static int GET_STATUS_CODE = -1;
 
     public static MutableLiveData<ChangesDeviceEvent> getSelectedEventLiveData() {
         return selectedEventLiveData;
@@ -115,6 +117,21 @@ public class LockTester implements Serializable {
         selectedEventLiveData.postValue(event);
     }
 
+    private static String getActualCode(String bleCode){
+        String code = bleCode;
+        if(code.length() > 4)
+            code = code.substring(4).toUpperCase();
+        String res = "";
+        for (int i = 0; i < code.length(); i+=2) {
+            res = res + code.charAt(i);
+                if(code.length() > i + 1)
+            res = res + code.charAt(i + 1);
+                if(code.length() > i + 2)
+            res = res + ":";
+        }
+        return res;
+    }
+
     public static boolean eventSelected(String longCode) {
         String code = longCode;
         if(longCode.length() >= 12)
@@ -150,7 +167,16 @@ public class LockTester implements Serializable {
         ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
         if (selectedEvent == null)
             return false;
-        ServiceCommand.connect(context, selectedEvent.getmBleBase(), selectedEvent.getmBleStatus());
+        BleBase base = new BleBase();
+        base.setAddress(selectedEvent.getmBleBase().getAddress());
+        ServiceCommand.connect(context, base, new BleStatus());
+        return true;
+    }
+
+    public static boolean connectByAddress(Context context, String bleCode) {
+        BleBase base = new BleBase();
+        base.setAddress(getActualCode(bleCode));
+        ServiceCommand.connect(context, base, new BleStatus());
         return true;
     }
 
@@ -162,11 +188,25 @@ public class LockTester implements Serializable {
         return true;
     }
 
+    public static boolean disconnectByAddress(Context context, String bleCode) {
+        BleBase base = new BleBase();
+        base.setAddress(getActualCode(bleCode));
+        ServiceCommand.disconnect(context, base);
+        return true;
+    }
+
     public static boolean unlock(Context context) {
         ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
         if (selectedEvent == null)
             return false;
-        ServiceCommand.send(context, selectedEvent.getmBleBase(), 1);
+        ServiceCommand.send(context, selectedEvent.getmBleBase(), UNLOCK_CODE);
+        return true;
+    }
+
+    public static boolean unlockByAddress(Context context, String bleCode) {
+        BleBase base = new BleBase();
+        base.setAddress(getActualCode(bleCode));
+        ServiceCommand.send(context, base, UNLOCK_CODE);
         return true;
     }
 
@@ -174,7 +214,13 @@ public class LockTester implements Serializable {
         ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
         if (selectedEvent == null)
             return;
-        ServiceCommand.send(context, selectedEvent.getmBleBase(), -1);
+        ServiceCommand.send(context, selectedEvent.getmBleBase(), GET_STATUS_CODE);
+    }
+
+    public static void getStatusByAddress(Context context, String bleCode){
+        BleBase base = new BleBase();
+        base.setAddress(getActualCode(bleCode));
+        ServiceCommand.send(context, base, GET_STATUS_CODE);
     }
 
     public static boolean authenticate(Context context) {
@@ -199,6 +245,42 @@ public class LockTester implements Serializable {
         selectedEventLiveData.postValue(selectedEvent);
         ServiceCommand.authenticated(context, selectedEvent.getmBleBase());
         return true;
+    }
+
+    public static boolean authenticateByAddress(Context context, String bleCode, String password) {
+        BleBase base = new BleBase();
+        base.setAddress(getActualCode(bleCode));
+        base.setPassWord(password);
+        ServiceCommand.authenticated(context, base);
+        return true;
+    }
+
+    public static String getLockStatusByStatus(BleStatus bleStatus) {
+        if (bleStatus == null)
+            return "ERR";
+        switch (bleStatus.getState()) {
+            case -3:
+                return "AUTHENTICATION_FAILED";
+            case 1:
+                return "CONNECTED";
+            case 0:
+                return "CONNECTING";
+            case 2:
+                return "NEW";
+            case 3:
+                return "AUTHENTICATED";
+            case 4:
+                if (bleStatus.LOCK_STA == 0) {
+                    return "UNLOCKED";
+                } else {
+                    return "LOCKED";
+                }
+            case -1:
+            case -2:
+                return "DISCONNECTED";
+            default:
+                return "UNKNOWN " + bleStatus.getState();
+        }
     }
 
     public static String getLockStatus() {

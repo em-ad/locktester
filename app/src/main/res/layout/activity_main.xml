@@ -10,7 +10,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center_vertical"
+        android:gravity="center"
         android:background="#353535"
         android:orientation="vertical"
         tools:context=".MainActivity">
@@ -24,9 +24,22 @@
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:gravity="center"
-            android:text="Make Sure To Grant All Permissions!\n Make Sure to Turn on Bluetooth!"
+            android:text="Make Sure To Grant All Permissions!\n Make Sure to Turn on Bluetooth!\nIf you write a code, tester only searches for that device!"
             android:textColor="@color/white"
              />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/editText"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:textColorHint="#888"
+            android:hint="Write device code here!"
+            android:textColor="@color/white"
+            />
 
         <TextView
             android:id="@+id/connect"
@@ -61,6 +74,18 @@
             android:paddingBottom="10dp"
             android:gravity="center"
             android:text="Unlock"
+            android:textColor="@color/white"
+            android:layout_marginBottom="12dp"
+            android:background="@android:drawable/screen_background_dark_transparent" />
+
+        <TextView
+            android:id="@+id/disconnect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:gravity="center"
+            android:text="Disconnect"
             android:textColor="@color/white"
             android:layout_marginBottom="12dp"
             android:background="@android:drawable/screen_background_dark_transparent" />

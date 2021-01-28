@@ -62,7 +62,7 @@ public class BleAdapter extends BluetoothGattCallback {
     public void start() {
         this.searchBle.setListener(new SearchListener.ScanListener() {
             public void onLeScan(BleBase bleBase, BleStatus bleStatus) {
-//                Log.e(TAG, "onLeScan BASE: " + new Gson().toJson(bleBase) );
+                Log.e(TAG, "onLeScan BASE: " + new Gson().toJson(bleBase) );
                 boolean existing = false;
                 ArrayList<BleBase> list = searchBle.sharedPreferences.getSaveBle().BaseList;
                 for (int i = 0; i < list.size(); i++) {

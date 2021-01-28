@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
         LockTester.getBleListLiveData().observe(this, new Observer<ArrayList<ChangesDeviceEvent>>() {
             @Override
             public void onChanged(ArrayList<ChangesDeviceEvent> changesDeviceEvents) {
-                bleShowAdapter.setDataSet(changesDeviceEvents);
+//                bleShowAdapter.setDataSet(changesDeviceEvents);
             }
         });
     }
@@ -97,15 +97,36 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
         binding.unlock.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(binding.editText.getText().toString().length() > 0){
+                    LockTester.unlockByAddress(MainActivity.this, binding.editText.getText().toString());
+                    return;
+                }
                 if (!checkEvent())
                     return;
-                toast("Unlocking");
                 LockTester.unlock(MainActivity.this);
+                toast("Unlocking");
+            }
+        });
+        binding.disconnect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(binding.editText.getText().toString().length() > 0){
+                    LockTester.disconnectByAddress(MainActivity.this, binding.editText.getText().toString());
+                    return;
+                }
+                if (!checkEvent())
+                    return;
+                toast("Disconnecting");
+                LockTester.disconnect(MainActivity.this);
             }
         });
         binding.connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(binding.editText.getText().toString().length() > 0){
+                    LockTester.connectByAddress(MainActivity.this, binding.editText.getText().toString());
+                    return;
+                }
                 if (!checkEvent())
                     return;
                 toast("Connecting");
@@ -115,6 +136,10 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
         binding.authenticate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(binding.editText.getText().toString().length() > 0){
+                    LockTester.authenticateByAddress(MainActivity.this, binding.editText.getText().toString(), "123456");
+                    return;
+                }
                 if (!checkEvent())
                     return;
                 toast("Authenticating with password=123456");
@@ -124,6 +149,10 @@ public class MainActivity extends AppCompatActivity implements ClickCallback {
         binding.getStatus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(binding.editText.getText().toString().length() > 0){
+                    LockTester.getStatusByAddress(MainActivity.this, binding.editText.getText().toString());
+                    return;
+                }
                 if (!checkEvent())
                     return;
                 LockTester.getStatus(MainActivity.this);
