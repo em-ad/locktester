@@ -17,7 +17,7 @@ import com.lock.locklib.blelibrary.base.BleBase;
 import com.lock.locklib.blelibrary.base.BleStatus;
 import com.lock.locklib.blelibrary.main.ServiceCommand;
 import com.lock.locklib.blelibrary.search.SearchBle;
-
+import com.lock.locklib.OperationStatus.*;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -255,60 +255,60 @@ public class LockTester implements Serializable {
         return true;
     }
 
-    public static String getLockStatusByStatus(BleStatus bleStatus) {
+    public static OperationStatus getLockStatusByStatus(BleStatus bleStatus) {
         if (bleStatus == null)
-            return "ERR";
+            return OperationStatus.ERR;
         switch (bleStatus.getState()) {
             case -3:
-                return "AUTHENTICATION_FAILED";
+                return OperationStatus.AUTHENTICATION_FAILED;
             case 1:
-                return "CONNECTED";
+                return OperationStatus.CONNECTED;
             case 0:
-                return "CONNECTING";
+                return OperationStatus.CONNECTING;
             case 2:
-                return "NEW";
+                return OperationStatus.NEW;
             case 3:
-                return "AUTHENTICATED";
+                return OperationStatus.AUTHENTICATED;
             case 4:
                 if (bleStatus.LOCK_STA == 0) {
-                    return "UNLOCKED";
+                    return OperationStatus.UNLOCKED;
                 } else {
-                    return "LOCKED";
+                    return OperationStatus.LOCKED;
                 }
             case -1:
             case -2:
-                return "DISCONNECTED";
+                return OperationStatus.DISCONNECTED;
             default:
-                return "UNKNOWN " + bleStatus.getState();
+                return OperationStatus.UNKNOWN;
         }
     }
 
-    public static String getLockStatus() {
+    public static OperationStatus getLockStatus() {
         ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
         if (selectedEvent == null)
-            return "ERR";
+            return OperationStatus.ERR;
         switch (selectedEvent.getmBleStatus().getState()) {
             case -3:
-                return "AUTHENTICATION_FAILED";
+                return OperationStatus.AUTHENTICATION_FAILED;
             case 1:
-                return "CONNECTED";
+                return OperationStatus.CONNECTED;
             case 0:
-                return "CONNECTING";
+                return OperationStatus.CONNECTING;
             case 2:
-                return "NEW";
+                return OperationStatus.NEW;
             case 3:
-                return "AUTHENTICATED";
+                return OperationStatus.AUTHENTICATED;
             case 4:
                 if (selectedEvent.getmBleStatus().LOCK_STA == 0) {
-                    return "UNLOCKED";
+                    return OperationStatus.UNLOCKED;
                 } else {
-                    return "LOCKED";
+                    return OperationStatus.LOCKED;
                 }
             case -1:
             case -2:
-                return "DISCONNECTED";
+                return OperationStatus.DISCONNECTED;
             default:
-                return "UNKNOWN " + selectedEvent.getmBleStatus().getState();
+                return OperationStatus.UNKNOWN;
         }
     }
 }
