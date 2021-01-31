@@ -3,7 +3,10 @@ package com.lock.locklib.blelibrary.Data;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.lock.locklib.OperationStatus;
 import com.lock.locklib.blelibrary.Adapter.BleItem;
+import com.lock.locklib.blelibrary.CommandCallback;
 import com.lock.locklib.blelibrary.EventBean.EventTool;
 import com.lock.locklib.blelibrary.EventBean.OtherEvent;
 import com.lock.locklib.blelibrary.sql.ChatDB;
@@ -33,11 +36,21 @@ public class ReadDataAnalysis {
     private static final byte token_fail = 3;
     private static final byte unlock = 2;
 
-    public static void Read(Context context, BleItem bleItem, byte[] bArr) {
+    public static void Read(Context context, BleItem bleItem, byte[] bArr, CommandCallback callback) {
         if (bArr.length >= 16) {
-            Log.i(TAG, "加密数据=" + BleTool.ByteToString(bArr));
             byte[] read2 = BleCommon.read(bArr);
             Log.e(TAG, "BYTES READ =" + BleTool.ByteToString(read2));
+            String res = BleTool.ByteToString2(read2);
+            if(res.toLowerCase().startsWith("05020100")){
+                callback.commandExecuted(OperationStatus.UNLOCKED);
+            } else if (res.toLowerCase().startsWith("05020101")){
+                callback.commandExecuted(OperationStatus.CONNECTING);
+            } else if (res.toLowerCase().startsWith("050f0100")){
+                callback.commandExecuted(OperationStatus.UNLOCKED);
+            } else if (res.toLowerCase().startsWith("050f0101")){
+                callback.commandExecuted(OperationStatus.LOCKED);
+            }
+
             byte b = read2[0];
             if (b != 2) {
                 if (b == 5) {
@@ -118,16 +131,18 @@ public class ReadDataAnalysis {
                     if (b3 != 2) {
                         if (b3 == 3 && read2[3] == 1) {
                             bleItem.changesData.getmBleStatus().setState(-3);
+                            callback.commandExecuted(OperationStatus.AUTHENTICATION_FAILED);
                         }
                     } else if (read2[2] == 1) {
                         bleItem.changesData.getmBleStatus().setState(-3);
+                        callback.commandExecuted(OperationStatus.AUTHENTICATION_FAILED);
                     } else {
                         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                         byteArrayOutputStream.write(read2, 3, 4);
                         if (TextUtils.isEmpty(BleTool.ByteToString(bleItem.changesData.getmBleStatus().getToken()))) {
                             bleItem.changesData.getmBleStatus().setToken(byteArrayOutputStream.toByteArray());
                             bleItem.changesData.getmBleStatus().setState(3);
-                            Log.i(TAG, "toke=" + BleTool.ByteToString(bleItem.changesData.getmBleStatus().getToken()));
+                            callback.commandExecuted(OperationStatus.AUTHENTICATED);
                             return;
                         }
                         bleItem.changesData.getmBleStatus().setState(4);

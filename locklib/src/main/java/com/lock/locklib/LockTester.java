@@ -1,12 +1,14 @@
 package com.lock.locklib;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.CountDownTimer;
 import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.gson.Gson;
+import com.lock.locklib.blelibrary.CommandCallback;
 import com.lock.locklib.blelibrary.EventBean.ChangesDeviceEvent;
 import com.lock.locklib.blelibrary.EventBean.ChangesDeviceListEvent;
 import com.lock.locklib.blelibrary.EventBean.EventBean;
@@ -15,6 +17,7 @@ import com.lock.locklib.blelibrary.EventBean.OtherEvent;
 import com.lock.locklib.blelibrary.EventBean.WriteDataEvent;
 import com.lock.locklib.blelibrary.base.BleBase;
 import com.lock.locklib.blelibrary.base.BleStatus;
+import com.lock.locklib.blelibrary.main.BleExecutor;
 import com.lock.locklib.blelibrary.main.ServiceCommand;
 import com.lock.locklib.blelibrary.search.SearchBle;
 import com.lock.locklib.OperationStatus.*;
@@ -26,63 +29,73 @@ import java.util.ArrayList;
 
 import javax.security.auth.DestroyFailedException;
 
-public class LockTester implements Serializable {
+public class LockTester implements Serializable, CommandCallback {
 
     private static MutableLiveData<ChangesDeviceEvent> selectedEventLiveData = new MutableLiveData<>();
     private static MutableLiveData<ArrayList<ChangesDeviceEvent>> bleListLiveData = new MutableLiveData<>(new ArrayList<>());
     private CountDownTimer listTimer;
     private final static int UNLOCK_CODE = 1;
     private final static int GET_STATUS_CODE = -1;
+    private static LockTester instance;
+    CommandCallback callback;
 
-    public static MutableLiveData<ChangesDeviceEvent> getSelectedEventLiveData() {
+    public void setCallback(CommandCallback callback) {
+        this.callback = callback;
+    }
+
+    public static LockTester getInstance() {
+        if(instance == null)
+            instance = new LockTester();
+        return instance;
+    }
+
+    public MutableLiveData<ChangesDeviceEvent> getSelectedEventLiveData() {
         return selectedEventLiveData;
     }
 
-    public static MutableLiveData<ArrayList<ChangesDeviceEvent>> getBleListLiveData() {
+    public MutableLiveData<ArrayList<ChangesDeviceEvent>> getBleListLiveData() {
         return bleListLiveData;
     }
 
-    public void prepare(SearchBle searcher) {
-        EventTool.register(this);
+    public void prepare(SearchBle searcher, Context context) {
+        Intent intent = new Intent();
+        intent.setAction(ServiceCommand.CONNECT_ACTION_START);
+        BleExecutor.getInstance().execute(intent, 0, 0, context, instance);
 
-        listTimer = new CountDownTimer(1000, 1000) {
+//        EventTool.register(instance);
 
-            @Override
-            public void onTick(long millisUntilFinished) {
-
-            }
-
-            @Override
-            public void onFinish() {
-                ArrayList<ChangesDeviceEvent> orig = bleListLiveData.getValue();
-//                ArrayList<ChangesDeviceEvent> events = new ArrayList<>();
-                for (int i = 0; i < searcher.sharedPreferences.getSaveBle().BaseList.size(); i++) {
-                    BleStatus status = new BleStatus();
-                    boolean found = false;
-                    for (int j = 0; j < orig.size(); j++) {
-                        if(orig.get(j).getmBleBase().getAddress().equals(searcher.sharedPreferences.getSaveBle().BaseList.get(i).getAddress())){
-                            status = orig.get(j).getmBleStatus();
-                            found = true;
-                            break;
-                        }
-                    }
-                    ChangesDeviceEvent event = new ChangesDeviceEvent(searcher.sharedPreferences.getSaveBle().BaseList.get(i), status);
-                    if(!found)
-                        orig.add(event);
-                }
-                bleListLiveData.postValue(orig);
-                this.start();
-            }
-
-        };
-
-        listTimer.start();
-    }
-
-    public void destroy(){
-        EventTool.unregister(this);
-        listTimer.cancel();
-        listTimer = null;
+//        listTimer = new CountDownTimer(1000, 1000) {
+//
+//            @Override
+//            public void onTick(long millisUntilFinished) {
+//
+//            }
+//
+//            @Override
+//            public void onFinish() {
+//                ArrayList<ChangesDeviceEvent> orig = bleListLiveData.getValue();
+////                ArrayList<ChangesDeviceEvent> events = new ArrayList<>();
+//                for (int i = 0; i < searcher.sharedPreferences.getSaveBle().BaseList.size(); i++) {
+//                    BleStatus status = new BleStatus();
+//                    boolean found = false;
+//                    for (int j = 0; j < orig.size(); j++) {
+//                        if(orig.get(j).getmBleBase().getAddress().equals(searcher.sharedPreferences.getSaveBle().BaseList.get(i).getAddress())){
+//                            status = orig.get(j).getmBleStatus();
+//                            found = true;
+//                            break;
+//                        }
+//                    }
+//                    ChangesDeviceEvent event = new ChangesDeviceEvent(searcher.sharedPreferences.getSaveBle().BaseList.get(i), status);
+//                    if(!found)
+//                        orig.add(event);
+//                }
+//                bleListLiveData.postValue(orig);
+//                instance.start();
+//            }
+//
+//        };
+//
+//        listTimer.start();
     }
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
@@ -113,11 +126,11 @@ public class LockTester implements Serializable {
         }
     }
 
-    public static void eventSelected(ChangesDeviceEvent event) {
+    public void eventSelected(ChangesDeviceEvent event) {
         selectedEventLiveData.postValue(event);
     }
 
-    private static String getActualCode(String bleCode){
+    private String getActualCode(String bleCode){
         String code = bleCode;
         if(code.length() > 4)
             code = code.substring(4).toUpperCase();
@@ -132,7 +145,7 @@ public class LockTester implements Serializable {
         return res;
     }
 
-    public static boolean eventSelected(String longCode) {
+    public boolean eventSelected(String longCode) {
         String code = longCode;
         if(longCode.length() >= 12)
         code = longCode.substring(longCode.length() - 12);
@@ -148,7 +161,7 @@ public class LockTester implements Serializable {
         return false;
     }
 
-    public static boolean deviceExists(String longCode) {
+    public boolean deviceExists(String longCode) {
         String code = longCode;
         if(longCode.length() >= 12)
             code = longCode.substring(longCode.length() - 12);
@@ -163,67 +176,67 @@ public class LockTester implements Serializable {
         return false;
     }
 
-    public static boolean connect(Context context) {
+    public boolean connect(Context context) {
         ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
         if (selectedEvent == null)
             return false;
         BleBase base = new BleBase();
         base.setAddress(selectedEvent.getmBleBase().getAddress());
-        ServiceCommand.connect(context, base, new BleStatus());
+        ServiceCommand.connect(context, base, new BleStatus(), instance);
         return true;
     }
 
-    public static boolean connectByAddress(Context context, String bleCode) {
+    public boolean connectByAddress(Context context, String bleCode) {
         BleBase base = new BleBase();
         base.setAddress(getActualCode(bleCode));
-        ServiceCommand.connect(context, base, new BleStatus());
+        ServiceCommand.connect(context, base, new BleStatus(), instance);
         return true;
     }
 
-    public static boolean disconnect(Context context) {
+    public boolean disconnect(Context context) {
         ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
         if (selectedEvent == null)
             return false;
-        ServiceCommand.disconnect(context, selectedEvent.getmBleBase());
+        ServiceCommand.disconnect(context, selectedEvent.getmBleBase(), instance);
         return true;
     }
 
-    public static boolean disconnectByAddress(Context context, String bleCode) {
+    public boolean disconnectByAddress(Context context, String bleCode) {
         BleBase base = new BleBase();
         base.setAddress(getActualCode(bleCode));
-        ServiceCommand.disconnect(context, base);
+        ServiceCommand.disconnect(context, base, instance);
         return true;
     }
 
-    public static boolean unlock(Context context) {
+    public boolean unlock(Context context) {
         ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
         if (selectedEvent == null)
             return false;
-        ServiceCommand.send(context, selectedEvent.getmBleBase(), UNLOCK_CODE);
+        ServiceCommand.send(context, selectedEvent.getmBleBase(), UNLOCK_CODE, instance);
         return true;
     }
 
-    public static boolean unlockByAddress(Context context, String bleCode) {
+    public boolean unlockByAddress(Context context, String bleCode) {
         BleBase base = new BleBase();
         base.setAddress(getActualCode(bleCode));
-        ServiceCommand.send(context, base, UNLOCK_CODE);
+        ServiceCommand.send(context, base, UNLOCK_CODE, instance);
         return true;
     }
 
-    public static void getStatus(Context context){
+    public void getStatus(Context context){
         ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
         if (selectedEvent == null)
             return;
-        ServiceCommand.send(context, selectedEvent.getmBleBase(), GET_STATUS_CODE);
+        ServiceCommand.send(context, selectedEvent.getmBleBase(), GET_STATUS_CODE, instance);
     }
 
-    public static void getStatusByAddress(Context context, String bleCode){
+    public void getStatusByAddress(Context context, String bleCode){
         BleBase base = new BleBase();
         base.setAddress(getActualCode(bleCode));
-        ServiceCommand.send(context, base, GET_STATUS_CODE);
+        ServiceCommand.send(context, base, GET_STATUS_CODE, instance);
     }
 
-    public static boolean authenticate(Context context) {
+    public boolean authenticate(Context context) {
         ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
         if (selectedEvent == null)
             return false;
@@ -231,11 +244,11 @@ public class LockTester implements Serializable {
         bleBaseInner.setPassWord("123456");
         selectedEvent.setmBleBase(bleBaseInner);
         selectedEventLiveData.postValue(selectedEvent);
-        ServiceCommand.authenticated(context, selectedEvent.getmBleBase());
+        ServiceCommand.authenticated(context, selectedEvent.getmBleBase(), instance);
         return true;
     }
 
-    public static boolean authenticate(Context context, String password) {
+    public boolean authenticate(Context context, String password) {
         ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
         if (selectedEvent == null)
             return false;
@@ -243,19 +256,19 @@ public class LockTester implements Serializable {
         bleBaseInner.setPassWord(password);
         selectedEvent.setmBleBase(bleBaseInner);
         selectedEventLiveData.postValue(selectedEvent);
-        ServiceCommand.authenticated(context, selectedEvent.getmBleBase());
+        ServiceCommand.authenticated(context, selectedEvent.getmBleBase(), instance);
         return true;
     }
 
-    public static boolean authenticateByAddress(Context context, String bleCode, String password) {
+    public boolean authenticateByAddress(Context context, String bleCode, String password) {
         BleBase base = new BleBase();
         base.setAddress(getActualCode(bleCode));
         base.setPassWord(password);
-        ServiceCommand.authenticated(context, base);
+        ServiceCommand.authenticated(context, base, instance);
         return true;
     }
 
-    public static OperationStatus getLockStatusByStatus(BleStatus bleStatus) {
+    public OperationStatus getLockStatusByStatus(BleStatus bleStatus) {
         if (bleStatus == null)
             return OperationStatus.ERR;
         switch (bleStatus.getState()) {
@@ -283,7 +296,7 @@ public class LockTester implements Serializable {
         }
     }
 
-    public static OperationStatus getLockStatus() {
+    public OperationStatus getLockStatus() {
         ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
         if (selectedEvent == null)
             return OperationStatus.ERR;
@@ -310,5 +323,11 @@ public class LockTester implements Serializable {
             default:
                 return OperationStatus.UNKNOWN;
         }
+    }
+
+    @Override
+    public void commandExecuted(OperationStatus status) {
+//        Log.e("tag", "commandExecuted: " + status.getName() );
+        this.callback.commandExecuted(status);
     }
 }

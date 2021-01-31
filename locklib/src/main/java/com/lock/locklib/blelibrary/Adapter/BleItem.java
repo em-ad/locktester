@@ -10,6 +10,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.lock.locklib.blelibrary.CommandCallback;
 import com.lock.locklib.blelibrary.Data.ReadDataAnalysis;
 import com.lock.locklib.blelibrary.Data.SendDataAnalysis;
 import com.lock.locklib.blelibrary.EventBean.ChangesDeviceEvent;
@@ -128,8 +130,8 @@ public class BleItem {
         }
     }
 
-    public void readData(byte[] bArr) {
-        ReadDataAnalysis.Read(this.context, this, bArr);
+    public void readData(byte[] bArr, CommandCallback callback) {
+        ReadDataAnalysis.Read(this.context, this, bArr, callback);
         EventTool.post(this.changesData);
     }
 

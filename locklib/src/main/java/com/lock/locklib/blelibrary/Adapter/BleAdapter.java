@@ -10,6 +10,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.lock.locklib.OperationStatus;
+import com.lock.locklib.blelibrary.CommandCallback;
 import com.lock.locklib.blelibrary.EventBean.EventBean;
 import com.lock.locklib.blelibrary.EventBean.ChangesDeviceEvent;
 import com.lock.locklib.blelibrary.EventBean.ChangesDeviceListEvent;
@@ -25,6 +27,7 @@ import com.lock.locklib.blelibrary.sql.ChatDB;
 import com.lock.locklib.blelibrary.tool.BleSharedPreferences;
 import com.lock.locklib.blelibrary.tool.BleTool;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -41,6 +44,7 @@ public class BleAdapter extends BluetoothGattCallback {
     private ChangesDeviceListEvent changesBLE = new ChangesDeviceListEvent();
     private Context context;
     private BleTool mBleTool;
+    private CommandCallback callback;
     /* access modifiers changed from: private */
     public CopyOnWriteArrayList<BleItem> mList = new CopyOnWriteArrayList<>();
     private int rssiTime = 300;
@@ -49,20 +53,21 @@ public class BleAdapter extends BluetoothGattCallback {
     private BleSharedPreferences sharedPreferences;
     private Timer timer;
 
-    public BleAdapter(Context context2) {
+    public BleAdapter(Context context2, CommandCallback callback) {
         this.context = context2;
         EventTool.register(this);
         this.mBleTool = new BleTool(context2);
         this.sharedPreferences = new BleSharedPreferences(context2);
         this.saveBLE = this.sharedPreferences.getSaveBle();
         this.searchBle = SearchBle.getInstance(context2);
+        this.callback = callback;
         startRSSI();
     }
 
     public void start() {
         this.searchBle.setListener(new SearchListener.ScanListener() {
             public void onLeScan(BleBase bleBase, BleStatus bleStatus) {
-                Log.e(TAG, "onLeScan BASE: " + new Gson().toJson(bleBase) );
+//                Log.e(TAG, "onLeScan BASE: " + new Gson().toJson(bleBase) );
                 boolean existing = false;
                 ArrayList<BleBase> list = searchBle.sharedPreferences.getSaveBle().BaseList;
                 for (int i = 0; i < list.size(); i++) {
@@ -285,6 +290,7 @@ public class BleAdapter extends BluetoothGattCallback {
                 if (next2.isDevice(bluetoothGatt.getDevice().getAddress())) {
                     String str2 = TAG;
                     Log.e(str2, "STATE_CONNECTED" + next2.changesData.getmBleStatus().getState());
+                    callback.commandExecuted(OperationStatus.CONNECTED);
                     if (next2.changesData.getmBleStatus().getState() <= 1) {
                         next2.Connected();
                         return;
@@ -325,7 +331,8 @@ public class BleAdapter extends BluetoothGattCallback {
         while (it.hasNext()) {
             BleItem next = it.next();
             if (next.isDevice(bluetoothGatt.getDevice().getAddress())) {
-                next.readData(bluetoothGattCharacteristic.getValue());
+                next.readData(bluetoothGattCharacteristic.getValue(), callback);
+                Log.e(TAG, "onCharacteristicChanged: " + BleTool.ByteToString(bluetoothGattCharacteristic.getValue()) );
             }
         }
     }

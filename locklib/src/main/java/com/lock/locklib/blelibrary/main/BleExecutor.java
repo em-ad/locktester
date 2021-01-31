@@ -1,48 +1,27 @@
 package com.lock.locklib.blelibrary.main;
 
-import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
-import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
-
 import com.lock.locklib.blelibrary.Adapter.BleAdapter;
+import com.lock.locklib.blelibrary.CommandCallback;
 import com.lock.locklib.blelibrary.base.BleBase;
 import com.lock.locklib.blelibrary.base.BleStatus;
-import com.lock.locklib.blelibrary.notification.NotificationBean;
-import com.lock.locklib.blelibrary.notification.NotificationUtils;
 
-public class BluetoothLeService extends Service {
-    private String Tag = "BluetoothLeService";
+public class BleExecutor {
+    private static String TAG = "BleExecutor";
     public BleAdapter mBleAdapter;
-    private NotificationUtils notificationUtils;
-    private static BluetoothLeService self = null;
+    static BleExecutor instance;
 
-    @Nullable
-    public IBinder onBind(Intent intent) {
-        return null;
+    public static BleExecutor getInstance() {
+        if(instance == null)
+            instance = new BleExecutor();
+        return instance;
     }
 
-    public void onCreate() {
-        super.onCreate();
-        Log.e(this.Tag, "onCreate");
-        this.mBleAdapter = new BleAdapter(this);
-    }
-
-    @Override
-    public void onStart(Intent intent, int startId) {
-        super.onStart(intent, startId);
-        self = this;
-    }
-
-    public static BluetoothLeService getSelf() {
-        return self;
-    }
-
-    public int onStartCommand(Intent intent, int i, int i2) {
-        Log.e(this.Tag, "onStartCommand");
+    public int execute(Intent intent, int i, int i2, Context context, CommandCallback callback) {
         if (intent != null && !TextUtils.isEmpty(intent.getAction())) {
             String action = intent.getAction();
             char c = 65535;
@@ -95,14 +74,11 @@ public class BluetoothLeService extends Service {
             }
             switch (c) {
                 case 0:
-                    if (this.notificationUtils == null) {
-                        this.notificationUtils = new NotificationUtils(this);
-                        this.notificationUtils.sendNotification((NotificationBean) intent.getParcelableExtra(ServiceCommand.CONNECT_ACTION_START_Bean));
-                    }
                     if (this.mBleAdapter == null) {
-                        this.mBleAdapter = new BleAdapter(this);
+                        this.mBleAdapter = new BleAdapter(context, callback);
                     }
                     this.mBleAdapter.start();
+                    Log.e("tag", "execute: " + " adapter init" );
                     break;
                 case 1:
                     this.mBleAdapter.connect((BleBase) intent.getParcelableExtra(ServiceCommand.CONNECT_DATA_BASE), (BleStatus) intent.getParcelableExtra(ServiceCommand.CONNECT_DATA_STATUS));
@@ -127,12 +103,10 @@ public class BluetoothLeService extends Service {
                     break;
             }
         }
-        return super.onStartCommand(intent, i, i2);
+        return -1;
     }
 
     public void onDestroy() {
-        Log.e(this.Tag, "onDestroy");
-        super.onDestroy();
         this.mBleAdapter.onDestroy();
         this.mBleAdapter = null;
     }
