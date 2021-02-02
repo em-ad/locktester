@@ -47,7 +47,7 @@ public class ReadDataAnalysis {
                 callback.commandExecuted(OperationStatus.CONNECTING);
             } else if (res.toLowerCase().startsWith("050f0100")){
                 callback.commandExecuted(OperationStatus.UNLOCKED);
-            } else if (res.toLowerCase().startsWith("050f0101")){
+            } else if (res.toLowerCase().startsWith("050f0101") || res.toLowerCase().startsWith("05080100")){
                 callback.commandExecuted(OperationStatus.LOCKED);
             }
 
