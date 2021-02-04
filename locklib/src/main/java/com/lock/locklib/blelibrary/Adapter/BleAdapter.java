@@ -95,6 +95,7 @@ public class BleAdapter extends BluetoothGattCallback {
         if (!TextUtils.isEmpty(this.Connecting) || this.mBleTool.GetAdapter() == null || bleBase == null || TextUtils.isEmpty(bleBase.getAddress())) {
             return false;
         }
+        this.mList.clear();
         Iterator<BleItem> it = this.mList.iterator();
         while (it.hasNext()) {
             String str = TAG;
