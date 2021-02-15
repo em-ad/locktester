@@ -129,6 +129,7 @@ public class BleAdapter extends BluetoothGattCallback {
             if (next.isDevice(bleBase.getAddress())) {
                 Log.e(TAG, "disconnect_1");
                 next.mBluetoothGatt.disconnect();
+                callback.commandExecuted(OperationStatus.DISCONNECTED);
                 next.onDestroy();
                 this.mList.remove(next);
             }
@@ -272,17 +273,17 @@ public class BleAdapter extends BluetoothGattCallback {
             if (bluetoothGatt.getDevice().getAddress().equals(this.Connecting)) {
                 this.Connecting = "";
             }
-            Iterator<BleItem> it = this.mList.iterator();
-            while (it.hasNext()) {
-                BleItem next = it.next();
-                if (next.isDevice(bluetoothGatt.getDevice().getAddress())) {
-                    Log.e(TAG, "STATE_DISCONNECTED");
-                    callback.commandExecuted(OperationStatus.DISCONNECTED);
-                    next.close();
-                    this.mList.remove(next);
-                    return;
-                }
-            }
+//            Iterator<BleItem> it = this.mList.iterator();
+//            while (it.hasNext()) {
+//                BleItem next = it.next();
+//                if (next.isDevice(bluetoothGatt.getDevice().getAddress())) {
+//                    Log.e(TAG, "STATE_DISCONNECTED");
+//                    callback.commandExecuted(OperationStatus.DISCONNECTED);
+//                    next.close();
+//                    this.mList.remove(next);
+//                    return;
+//                }
+//            }
             Log.e(TAG, "STATE_DISCONNECTED_close");
             bluetoothGatt.close();
             EventTool.post(new OtherEvent(1, bluetoothGatt.getDevice().getAddress()));
@@ -302,7 +303,7 @@ public class BleAdapter extends BluetoothGattCallback {
                 }
             }
             Log.e(TAG, "STATE_CONNECTED_disconnect");
-            bluetoothGatt.disconnect();
+//            bluetoothGatt.disconnect();
             EventTool.post(new OtherEvent(1, bluetoothGatt.getDevice().getAddress()));
         }
     }
