@@ -128,6 +128,7 @@ public class BleAdapter extends BluetoothGattCallback {
             BleItem next = it.next();
             if (next.isDevice(bleBase.getAddress())) {
                 Log.e(TAG, "disconnect_1");
+                next.mBluetoothGatt.disconnect();
                 next.onDestroy();
                 this.mList.remove(next);
             }
