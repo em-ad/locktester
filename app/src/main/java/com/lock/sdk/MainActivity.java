@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements ClickCallback, Co
         initViews();
 //        initBle();
         setClickListeners();
+        binding.editText.setText("0787f830022f2761");
         LockTester.getInstance().getSelectedEventLiveData().observe(this, new Observer<ChangesDeviceEvent>() {
             @SuppressLint("SetTextI18n")
             @Override

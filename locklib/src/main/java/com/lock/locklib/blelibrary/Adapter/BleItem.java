@@ -46,7 +46,6 @@ public class BleItem {
 
     public BleItem(Context context2, BluetoothGatt bluetoothGatt, BleBase bleBase, BleStatus bleStatus) {
         this.mBluetoothGatt = bluetoothGatt;
-        connect();
         this.context = context2;
         bleStatus.setState(0);
         this.changesData = new ChangesDeviceEvent(bleBase, bleStatus);
@@ -77,7 +76,7 @@ public class BleItem {
         return this.changesData.getmBleBase().getAddress().equals(str);
     }
 
-    private boolean connect() {
+    public boolean connect() {
         BluetoothGatt bluetoothGatt = this.mBluetoothGatt;
         if (bluetoothGatt == null) {
             return false;
@@ -97,8 +96,7 @@ public class BleItem {
         close();
     }
 
-    private void disconnect() {
-        Log.e(TAG, "Disconnect");
+    public void disconnect() {
         BluetoothGatt bluetoothGatt = this.mBluetoothGatt;
         if (bluetoothGatt != null) {
             bluetoothGatt.disconnect();

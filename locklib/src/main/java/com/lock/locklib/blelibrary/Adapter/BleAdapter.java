@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
@@ -34,8 +35,11 @@ import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Handler;
+
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
 import com.lock.locklib.blelibrary.Adapter.BleItem;
 
 public class BleAdapter extends BluetoothGattCallback {
@@ -71,11 +75,11 @@ public class BleAdapter extends BluetoothGattCallback {
                 boolean existing = false;
                 ArrayList<BleBase> list = searchBle.sharedPreferences.getSaveBle().BaseList;
                 for (int i = 0; i < list.size(); i++) {
-                    if(list.get(i).Address.equals(bleBase.Address)) {
+                    if (list.get(i).Address.equals(bleBase.Address)) {
                         existing = true;
                     }
                 }
-                if(!existing) {
+                if (!existing) {
                     list.add(bleBase);
                     SaveBleEvent event1 = new SaveBleEvent();
                     event1.BaseList = list;
@@ -120,8 +124,9 @@ public class BleAdapter extends BluetoothGattCallback {
     }
 
     public void disconnect(BleBase bleBase) {
-        if (bleBase.getAddress().equals(this.Connecting)) {
-            this.Connecting = "";
+        BluetoothDevice remoteDevice = this.mBleTool.GetAdapter().getRemoteDevice(bleBase.getAddress());
+        if (remoteDevice == null) {
+            return;
         }
         Iterator<BleItem> it = this.mList.iterator();
         while (it.hasNext()) {
@@ -227,6 +232,8 @@ public class BleAdapter extends BluetoothGattCallback {
             } else if (eventBean instanceof ChangesDeviceEvent) {
                 ChangesDeviceEvent changesDeviceEvent = (ChangesDeviceEvent) eventBean;
                 if (changesDeviceEvent.getmBleStatus().getState() == 3 || changesDeviceEvent.getmBleStatus().getState() == 5) {
+                    if (changesDeviceEvent.getmBleStatus().getState() == 3)
+                        callback.commandExecuted(OperationStatus.AUTHENTICATED);
                     boolean z = false;
                     int i = 0;
                     while (true) {
@@ -268,7 +275,7 @@ public class BleAdapter extends BluetoothGattCallback {
     public void onConnectionStateChange(BluetoothGatt bluetoothGatt, int i, int i2) {
         super.onConnectionStateChange(bluetoothGatt, i, i2);
         String str = TAG;
-        if (i2 == STATE_CLOSED) {
+        if (i2 == STATE_CLOSED || i2 == BluetoothProfile.STATE_DISCONNECTED) {
             if (bluetoothGatt.getDevice().getAddress().equals(this.Connecting)) {
                 this.Connecting = "";
             }
@@ -278,7 +285,8 @@ public class BleAdapter extends BluetoothGattCallback {
                 if (next.isDevice(bluetoothGatt.getDevice().getAddress())) {
                     Log.e(TAG, "STATE_DISCONNECTED");
                     callback.commandExecuted(OperationStatus.DISCONNECTED);
-                    next.close();
+                    bluetoothGatt.disconnect();
+                    next.onDestroy();
                     this.mList.remove(next);
                     return;
                 }
@@ -293,17 +301,18 @@ public class BleAdapter extends BluetoothGattCallback {
                 if (next2.isDevice(bluetoothGatt.getDevice().getAddress())) {
                     String str2 = TAG;
                     Log.e(str2, "STATE_CONNECTED" + next2.changesData.getmBleStatus().getState());
-                    callback.commandExecuted(OperationStatus.CONNECTED);
                     if (next2.changesData.getmBleStatus().getState() <= 1) {
                         next2.Connected();
+                        callback.commandExecuted(OperationStatus.CONNECTED);
                         return;
                     }
                     return;
                 }
             }
-            Log.e(TAG, "STATE_CONNECTED_disconnect");
-            bluetoothGatt.disconnect();
-            EventTool.post(new OtherEvent(1, bluetoothGatt.getDevice().getAddress()));
+//            Log.e(TAG, "STATE_CONNECTED_disconnect");
+//            callback.commandExecuted(OperationStatus.DISCONNECTED);
+//            bluetoothGatt.disconnect();
+//            EventTool.post(new OtherEvent(1, bluetoothGatt.getDevice().getAddress()));
         }
     }
 
@@ -335,7 +344,7 @@ public class BleAdapter extends BluetoothGattCallback {
             BleItem next = it.next();
             if (next.isDevice(bluetoothGatt.getDevice().getAddress())) {
                 next.readData(bluetoothGattCharacteristic.getValue(), callback);
-                Log.e(TAG, "onCharacteristicChanged: " + BleTool.ByteToString(bluetoothGattCharacteristic.getValue()) );
+                Log.e(TAG, "onCharacteristicChanged: " + BleTool.ByteToString(bluetoothGattCharacteristic.getValue()));
             }
         }
     }
