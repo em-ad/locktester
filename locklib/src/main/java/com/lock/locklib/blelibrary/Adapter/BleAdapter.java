@@ -92,7 +92,7 @@ public class BleAdapter extends BluetoothGattCallback {
     }
 
     public boolean connect(BleBase bleBase, BleStatus bleStatus) {
-        if (!TextUtils.isEmpty(this.Connecting) || this.mBleTool.GetAdapter() == null || bleBase == null || TextUtils.isEmpty(bleBase.getAddress())) {
+        if (this.mBleTool.GetAdapter() == null || bleBase == null || TextUtils.isEmpty(bleBase.getAddress())) { //!TextUtils.isEmpty(this.Connecting) ||
             return false;
         }
         this.mList.clear();
