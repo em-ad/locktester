@@ -101,12 +101,12 @@ public class BleAdapter extends BluetoothGattCallback {
             return false;
         }
         this.mBleTool.GetAdapter().getBluetoothLeScanner().startScan(new ScanCallback() {});
-        this.mList.clear();
-        Iterator<BleItem> it = this.mList.iterator();
-        while (it.hasNext()) {
+//        this.mList.clear();
+        for (BleItem bleItem : this.mList) {
             String str = TAG;
             Log.e(str, "STATE >>>> " + bleStatus.state);
-            if (it.next().isDevice(bleBase.getAddress())) {
+            if (bleItem.isDevice(bleBase.getAddress())) {
+                bleItem.connect();
                 return false;
             }
         }
