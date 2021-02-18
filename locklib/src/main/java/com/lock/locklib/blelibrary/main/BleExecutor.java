@@ -74,9 +74,9 @@ public class BleExecutor {
             }
             switch (c) {
                 case 0:
-                    if (this.mBleAdapter == null) {
+//                    if (this.mBleAdapter == null) {
                         this.mBleAdapter = new BleAdapter(context, callback);
-                    }
+//                    }
                     this.mBleAdapter.start();
                     Log.e("tag", "execute: " + " adapter init" );
                     break;
