@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothProfile;
+import android.bluetooth.le.ScanCallback;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
@@ -99,6 +100,7 @@ public class BleAdapter extends BluetoothGattCallback {
         if (this.mBleTool.GetAdapter() == null || bleBase == null || TextUtils.isEmpty(bleBase.getAddress())) { //!TextUtils.isEmpty(this.Connecting) ||
             return false;
         }
+        this.mBleTool.GetAdapter().getBluetoothLeScanner().startScan(new ScanCallback() {});
         this.mList.clear();
         Iterator<BleItem> it = this.mList.iterator();
         while (it.hasNext()) {
@@ -149,6 +151,7 @@ public class BleAdapter extends BluetoothGattCallback {
                 return;
             }
         }
+        this.mBleTool.GetAdapter().getBluetoothLeScanner().stopScan(new ScanCallback() {});
     }
 
     public void sendType(BleBase bleBase, int i) {
