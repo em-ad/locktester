@@ -48,6 +48,7 @@ public class BleItem {
         this.mBluetoothGatt = bluetoothGatt;
         this.context = context2;
         bleStatus.setState(0);
+        connect();
         this.changesData = new ChangesDeviceEvent(bleBase, bleStatus);
         EventTool.post(this.changesData);
     }
