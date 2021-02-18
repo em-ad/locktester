@@ -138,19 +138,20 @@ public class BleAdapter extends BluetoothGattCallback {
                 callback.commandExecuted(OperationStatus.DISCONNECTED);
                 next.onDestroy();
                 this.mList.remove(next);
+                this.mList.clear();
             }
         }
-        Iterator<BleBase> it2 = this.saveBLE.getBaseList().iterator();
-        while (it2.hasNext()) {
-            BleBase next2 = it2.next();
-            if (next2.getAddress().equals(bleBase.getAddress())) {
-                Log.e(TAG, "disconnect_2");
-                this.saveBLE.getBaseList().remove(next2);
-                this.sharedPreferences.setSaveBle(this.saveBLE);
-                ChatDB.delstu(this.context, bleBase.getAddress());
-                return;
-            }
-        }
+//        Iterator<BleBase> it2 = this.saveBLE.getBaseList().iterator();
+//        while (it2.hasNext()) {
+//            BleBase next2 = it2.next();
+//            if (next2.getAddress().equals(bleBase.getAddress())) {
+//                Log.e(TAG, "disconnect_2");
+//                this.saveBLE.getBaseList().remove(next2);
+//                this.sharedPreferences.setSaveBle(this.saveBLE);
+//                ChatDB.delstu(this.context, bleBase.getAddress());
+//                return;
+//            }
+//        }
         this.mBleTool.GetAdapter().getBluetoothLeScanner().stopScan(new ScanCallback() {});
     }
 
