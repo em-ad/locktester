@@ -2,6 +2,8 @@ package com.lock.locklib.blelibrary.main;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -14,6 +16,7 @@ public class BleExecutor {
     private static String TAG = "BleExecutor";
     public BleAdapter mBleAdapter;
     static BleExecutor instance;
+    boolean isBusy = false;
 
     public static BleExecutor getInstance() {
         if(instance == null)
@@ -22,6 +25,17 @@ public class BleExecutor {
     }
 
     public int execute(Intent intent, int i, int i2, Context context, CommandCallback callback) {
+        if(isBusy)
+            return -1;
+        else {
+            isBusy = true;
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    isBusy = false;
+                }
+            }, 1000);
+        }
         if (intent != null && !TextUtils.isEmpty(intent.getAction())) {
             String action = intent.getAction();
             char c = 65535;

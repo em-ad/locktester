@@ -54,16 +54,16 @@ public class BleItem {
     }
 
     public void onReadRemoteRssi(BluetoothGatt bluetoothGatt, int i, int i2) {
-        if (i > this.maxRssi) {
-            this.RssiNum = 1;
-            return;
-        }
-        int i3 = this.RssiNum;
-        if (i3 >= this.maxRssiNum) {
-            disconnect();
-        } else {
-            this.RssiNum = i3 + 1;
-        }
+//        if (i > this.maxRssi) {
+//            this.RssiNum = 1;
+//            return;
+//        }
+//        int i3 = this.RssiNum;
+//        if (i3 >= this.maxRssiNum) {
+//            disconnect();
+//        } else {
+//            this.RssiNum = i3 + 1;
+//        }
     }
 
     public boolean readRemoteRssi() {

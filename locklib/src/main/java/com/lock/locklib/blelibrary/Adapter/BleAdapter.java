@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.os.Handler;
@@ -91,7 +92,7 @@ public class BleAdapter extends BluetoothGattCallback {
     }
 
     public boolean connect(BleBase bleBase, BleStatus bleStatus) {
-        if (this.mBleTool.GetAdapter() == null || bleBase == null || TextUtils.isEmpty(bleBase.getAddress())) { //!TextUtils.isEmpty(this.Connecting) ||
+        if (this.mBleTool.GetAdapter() == null || bleBase == null || TextUtils.isEmpty(bleBase.getAddress()) || currentBle != null) { //!TextUtils.isEmpty(this.Connecting) ||
             return false;
         }
 //        this.mBleTool.GetAdapter().getBluetoothLeScanner().startScan(new ScanCallback() {});
@@ -215,7 +216,7 @@ public class BleAdapter extends BluetoothGattCallback {
 //        }
         if (currentBle != null && currentBle.changesData.getmBleBase().getAddress().equals(bleBase.getAddress())) {
             currentBle.changesData.mBleBase.setPassWord(bleBase.getPassWord());
-            currentBle.sendToken(bleBase);
+            currentBle.sendToken(currentBle.changesData.mBleBase);
         }
     }
 
@@ -332,10 +333,10 @@ public class BleAdapter extends BluetoothGattCallback {
 //            }
 //            if (currentBle != null)
 //                currentBle.onDestroy();
-//            callback.commandExecuted(OperationStatus.DISCONNECTED);
+            callback.commandExecuted(OperationStatus.DISCONNECTED);
 //            currentBle = null;
 //            Log.e(TAG, "STATE_DISCONNECTED_close");
-//            EventTool.post(new OtherEvent(1, bluetoothGatt.getDevice().getAddress()));
+            EventTool.post(new OtherEvent(1, bluetoothGatt.getDevice().getAddress()));
         } else if (i2 == STATE_CONNECTED) {
 //            Iterator<BleItem> it2 = this.mList.iterator();
 //            while (it2.hasNext()) {
