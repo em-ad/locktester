@@ -223,6 +223,13 @@ public class LockTester implements Serializable, CommandCallback {
         return true;
     }
 
+    public boolean unlockByAddressAlt(Context context, String bleCode) {
+        BleBase base = new BleBase();
+        base.setAddress(getActualCode(bleCode));
+        ServiceCommand.sendAlt(context, base, UNLOCK_CODE, instance);
+        return true;
+    }
+
     public void getStatus(Context context){
         ChangesDeviceEvent selectedEvent = selectedEventLiveData.getValue();
         if (selectedEvent == null)
@@ -265,6 +272,14 @@ public class LockTester implements Serializable, CommandCallback {
         base.setAddress(getActualCode(bleCode));
         base.setPassWord(password);
         ServiceCommand.authenticated(context, base, instance);
+        return true;
+    }
+
+    public boolean authenticateByAddressAlt(Context context, String bleCode, String password) {
+        BleBase base = new BleBase();
+        base.setAddress(getActualCode(bleCode));
+        base.setPassWord(password);
+        ServiceCommand.authenticatedAlt(context, base, instance);
         return true;
     }
 

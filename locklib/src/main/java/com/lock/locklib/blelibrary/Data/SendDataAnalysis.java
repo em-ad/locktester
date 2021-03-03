@@ -1,9 +1,13 @@
 package com.lock.locklib.blelibrary.Data;
 
 import android.content.Context;
+import android.util.Log;
+
+import com.google.gson.Gson;
 import com.lock.locklib.blelibrary.Adapter.BleItem;
 import com.lock.locklib.blelibrary.base.BleBase;
 import com.lock.locklib.blelibrary.base.BleStatus;
+
 import java.io.ByteArrayOutputStream;
 
 public class SendDataAnalysis {
@@ -27,6 +31,19 @@ public class SendDataAnalysis {
             byteArrayOutputStream.write(bleBase.getPassWord().substring(i, i2).getBytes(), 0, bleBase.getPassWord().substring(i, i2).getBytes().length);
             i = i2;
         }
+        return BleCommon.addCrcAndEnd(byteArrayOutputStream);
+    }
+
+    public static byte[] SendTokenAlt(BleBase bleBase) {
+        Log.e("tag", "SendTokenAlt: " + new Gson().toJson(bleBase));
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        byteArrayOutputStream.write(BleCommon.mToKenAlt, 0, BleCommon.mToKenAlt.length);
+//        int i = 0;
+//        while (i < bleBase.getPassWord().length()) {
+//            int i2 = i + 1;
+//            byteArrayOutputStream.write(bleBase.getPassWord().substring(i, i2).getBytes(), 0, bleBase.getPassWord().substring(i, i2).getBytes().length);
+//            i = i2;
+//        }
         return BleCommon.addCrcAndEnd(byteArrayOutputStream);
     }
 
@@ -74,10 +91,43 @@ public class SendDataAnalysis {
 
     public static byte[] SendOther(Context context, BleItem bleItem, int i) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        if (i == -1){
+        if (i == -1) {
             byteArrayOutputStream.write(BleCommon.mStatus, 0, BleCommon.mStatus.length);
         } else if (i == 1) {
             byteArrayOutputStream.write(BleCommon.mUnlock, 0, BleCommon.mUnlock.length);
+            ReadDataAnalysis.saveChat(context, bleItem.changesData.getmBleBase().getAddress(), 1);
+        } else if (i == 2) {
+            byteArrayOutputStream.write(BleCommon.mlock, 0, BleCommon.mlock.length);
+            ReadDataAnalysis.saveChat(context, bleItem.changesData.getmBleBase().getAddress(), 0);
+        } else if (i == 1001) {
+            byteArrayOutputStream.write(BleCommon.mAutoUnlockOpen, 0, BleCommon.mAutoUnlockOpen.length);
+        } else if (i == 1002) {
+            byteArrayOutputStream.write(BleCommon.mAutoUnlockClose, 0, BleCommon.mAutoUnlockClose.length);
+        } else if (i == 2001) {
+            byteArrayOutputStream.write(BleCommon.mVibrationOpen, 0, BleCommon.mVibrationOpen.length);
+        } else if (i == 2002) {
+            byteArrayOutputStream.write(BleCommon.mVibrationClose, 0, BleCommon.mVibrationClose.length);
+        } else if (i == 3001) {
+            byteArrayOutputStream.write(BleCommon.mConsignmentOpen, 0, BleCommon.mConsignmentOpen.length);
+        } else if (i == 3002) {
+            byteArrayOutputStream.write(BleCommon.mConsignmentClose, 0, BleCommon.mConsignmentClose.length);
+        }
+        byteArrayOutputStream.write(bleItem.changesData.getmBleStatus().getToken(), 0, bleItem.changesData.getmBleStatus().getToken().length);
+        return BleCommon.addCrcAndEnd(byteArrayOutputStream);
+    }
+
+    public static byte[] SendOtherAlt(Context context, BleItem bleItem, int i) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        if (i == -1) {
+            byteArrayOutputStream.write(BleCommon.mStatus, 0, BleCommon.mStatus.length);
+        } else if (i == 1) {
+            byteArrayOutputStream.write(BleCommon.mUnlockAlt, 0, BleCommon.mUnlockAlt.length);
+            int j = 0;
+            while (j < bleItem.changesData.mBleBase.getPassWord().length()) {
+                int i2 = j + 1;
+                byteArrayOutputStream.write(bleItem.changesData.mBleBase.getPassWord().substring(j, i2).getBytes(), 0, bleItem.changesData.mBleBase.getPassWord().substring(j, i2).getBytes().length);
+                j = i2;
+            }
             ReadDataAnalysis.saveChat(context, bleItem.changesData.getmBleBase().getAddress(), 1);
         } else if (i == 2) {
             byteArrayOutputStream.write(BleCommon.mlock, 0, BleCommon.mlock.length);

@@ -205,41 +205,47 @@ public class BleAdapter extends BluetoothGattCallback {
         }
     }
 
+    public void sendTypeAlt(BleBase bleBase, int i) {
+        if (i == -1) {
+            if (currentBle != null && currentBle.changesData.getmBleBase().getAddress().equals(bleBase.getAddress())) {
+                currentBle.getStatus();
+            }
+        } else if (i == 1) {
+            if (currentBle != null && currentBle.changesData.getmBleBase().getAddress().equals(bleBase.getAddress())) {
+                currentBle.UnlockAlt();
+            }
+        } else if (i == 2 || i == 1001 || i == 1002 || i == 2001 || i == 2002 || i == 3001 || i == 3002) {
+            if (currentBle != null && currentBle.changesData.getmBleBase().getAddress().equals(bleBase.getAddress())) {
+                currentBle.sendAlt(i);
+            }
+        } else if (i == 4001 || i == 4002) {
+            if (currentBle != null && currentBle.changesData.getmBleBase().getAddress().equals(bleBase.getAddress())) {
+                currentBle.setInform(i);
+            }
+        }
+    }
+
     public void sendToken(BleBase bleBase) {
-//        Iterator<BleItem> it = this.mList.iterator();
-//        while (it.hasNext()) {
-//            BleItem next = it.next();
-//            if (next.isDevice(bleBase.getAddress())) {
-//                next.sendToken(bleBase);
-//            }
-//        }
         if (currentBle != null && currentBle.changesData.getmBleBase().getAddress().equals(bleBase.getAddress())) {
             currentBle.changesData.mBleBase.setPassWord(bleBase.getPassWord());
             currentBle.sendToken(bleBase);
         }
     }
 
+    public void sendTokenAlt(BleBase bleBase){
+        if (currentBle != null && currentBle.changesData.getmBleBase().getAddress().equals(bleBase.getAddress())) {
+            currentBle.changesData.mBleBase.setPassWord(bleBase.getPassWord());
+            currentBle.sendTokenAlt(bleBase);
+        }
+    }
+
     public void Modify(BleBase bleBase, String str, String str2) {
-//        Iterator<BleItem> it = this.mList.iterator();
-//        while (it.hasNext()) {
-//            BleItem next = it.next();
-//            if (next.isDevice(bleBase.getAddress())) {
-//                next.Modify(str, str2);
-//            }
-//        }
         if (currentBle != null && currentBle.changesData.getmBleBase().getAddress().equals(bleBase.getAddress())) {
             currentBle.Modify(str, str2);
         }
     }
 
     public void Modify(BleBase bleBase, String str) {
-//        Iterator<BleItem> it = this.mList.iterator();
-//        while (it.hasNext()) {
-//            BleItem next = it.next();
-//            if (next.isDevice(bleBase.getAddress())) {
-//                next.Modify(str);
-//            }
-//        }
         if (currentBle != null && currentBle.changesData.getmBleBase().getAddress().equals(bleBase.getAddress())) {
             currentBle.Modify(str);
         }
@@ -250,13 +256,6 @@ public class BleAdapter extends BluetoothGattCallback {
         if (eventBean != null) {
             if (eventBean instanceof WriteDataEvent) {
                 WriteDataEvent writeDataEvent = (WriteDataEvent) eventBean;
-//                Iterator<BleItem> it = this.mList.iterator();
-//                while (it.hasNext()) {
-//                    BleItem next = it.next();
-//                    if (next.isDevice(writeDataEvent.getmBase().getAddress())) {
-//                        next.LostWriteData(writeDataEvent.getData());
-//                    }
-//                }
                 if (currentBle != null) {
                     currentBle.LostWriteData(writeDataEvent.getData());
                 }
@@ -267,36 +266,12 @@ public class BleAdapter extends BluetoothGattCallback {
                         currentBle.changesData = changesDeviceEvent;
                     if (changesDeviceEvent.getmBleStatus().getState() == 3)
                         callback.commandExecuted(OperationStatus.AUTHENTICATED);
-//                    boolean z = false;
-//                    int i = 0;
-//                    while (true) {
-//                        if (i >= this.saveBLE.getBaseList().size()) {
-//                            break;
-//                        } else if (this.saveBLE.getBaseList().get(i).getAddress().equals(changesDeviceEvent.getmBleBase().getAddress())) {
-//                            changesDeviceEvent.getmBleBase().setInform(this.saveBLE.getBaseList().get(i).isInform());
-//                            this.saveBLE.getBaseList().set(i, changesDeviceEvent.getmBleBase());
-//                            z = true;
-//                            break;
-//                        } else {
-//                            i++;
-//                        }
-//                    }
-//                    if (!z) {
-//                        this.saveBLE.getBaseList().add(changesDeviceEvent.getmBleBase());
-//                    }
-//                    this.sharedPreferences.setSaveBle(this.saveBLE);
                 }
-//                this.changesBLE.Changes(changesDeviceEvent);
             }
         }
     }
 
     public void onDestroy() {
-//        Iterator<BleItem> it = this.mList.iterator();
-//        while (it.hasNext()) {
-//            it.next().onDestroy();
-//        }
-//        this.mList.clear();
         if (currentBle != null)
             currentBle.onDestroy();
         currentBle = null;

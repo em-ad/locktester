@@ -3,7 +3,10 @@ package com.lock.locklib.blelibrary.main;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.util.Log;
 
+import com.google.gson.Gson;
+import com.lock.locklib.LockTester;
 import com.lock.locklib.blelibrary.CommandCallback;
 import com.lock.locklib.blelibrary.base.BleBase;
 import com.lock.locklib.blelibrary.base.BleStatus;
@@ -12,6 +15,7 @@ import com.lock.locklib.blelibrary.notification.NotificationBean;
 public class ServiceCommand {
 
     public static final String CONNECT_ACTION_AUTHENTICATED = "CONNECT_ACTION_AUTHENTICATED";
+    public static final String CONNECT_ACTION_AUTHENTICATED_ALT = "CONNECT_ACTION_AUTHENTICATED_ALT";
     public static final String CONNECT_ACTION_CONNECT = "CONNECT_ACTION_CONNECT";
     public static final String CONNECT_ACTION_DISCONNECT = "CONNECT_ACTION_DISCONNECT";
     public static final String CONNECT_ACTION_MODIFY_NAME = "CONNECT_ACTION_MODIFY_NAME";
@@ -26,6 +30,7 @@ public class ServiceCommand {
     public static final String CONNECT_DATA_STATUS = "CONNECT_DATA_Status";
     public static final String CONNECT_DATA_TYPE = "CONNECT_DATA_TYPE";
     public static final String GET_STATUS = "GET_STATUS";
+    public static final String CONNECT_ACTION_SEND_ALT = "CONNECT_ACTION_SEND_ALT";
 
     public static void start(Context context, NotificationBean notificationBean, CommandCallback callback) {
         Intent intent = new Intent();
@@ -60,6 +65,17 @@ public class ServiceCommand {
         BleExecutor.getInstance().execute(intent, 0, 0, context, callback);
     }
 
+    public static void sendAlt(Context context, BleBase bleBase, int i, CommandCallback callback) {
+        Intent intent = new Intent();
+        if (i != -1)
+            intent.setAction(CONNECT_ACTION_SEND_ALT);
+        else
+            intent.setAction(GET_STATUS);
+        intent.putExtra(CONNECT_DATA_BASE, bleBase);
+        intent.putExtra(CONNECT_DATA_TYPE, i);
+        BleExecutor.getInstance().execute(intent, 0, 0, context, callback);
+    }
+
     public static void authenticated(Context context, BleBase bleBase, CommandCallback callback) {
         Intent intent = new Intent();
         intent.setAction(CONNECT_ACTION_AUTHENTICATED);
@@ -81,6 +97,14 @@ public class ServiceCommand {
         intent.setAction(CONNECT_ACTION_MODIFY_NAME);
         intent.putExtra(CONNECT_DATA_BASE, bleBase);
         intent.putExtra(CONNECT_DATA_NAME, str);
+        BleExecutor.getInstance().execute(intent, 0, 0, context, callback);
+    }
+
+    public static void authenticatedAlt(Context context, BleBase base, CommandCallback callback) {
+        Intent intent = new Intent();
+        Log.e("tag", "authenticatedAlt: " + new Gson().toJson(base));
+        intent.setAction(CONNECT_ACTION_AUTHENTICATED_ALT);
+        intent.putExtra(CONNECT_DATA_BASE, base);
         BleExecutor.getInstance().execute(intent, 0, 0, context, callback);
     }
 }

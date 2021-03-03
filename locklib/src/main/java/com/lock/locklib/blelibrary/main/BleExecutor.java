@@ -27,6 +27,10 @@ public class BleExecutor {
             char c = 65535;
             if(action.equals(ServiceCommand.GET_STATUS)){
                 c = 99;
+            } else if (action.equals(ServiceCommand.CONNECT_ACTION_AUTHENTICATED_ALT)){
+                c = 101;
+            } else if (action.equals(ServiceCommand.CONNECT_ACTION_SEND_ALT)){
+                c = 102;
             }
             switch (action.hashCode()) {
                 case -1370382770:
@@ -89,11 +93,17 @@ public class BleExecutor {
                 case 3:
                     this.mBleAdapter.sendType((BleBase) intent.getParcelableExtra(ServiceCommand.CONNECT_DATA_BASE), intent.getIntExtra(ServiceCommand.CONNECT_DATA_TYPE, 0));
                     break;
+                case 102:
+                    this.mBleAdapter.sendTypeAlt((BleBase) intent.getParcelableExtra(ServiceCommand.CONNECT_DATA_BASE), intent.getIntExtra(ServiceCommand.CONNECT_DATA_TYPE, 0));
+                    break;
                 case 99:
                     this.mBleAdapter.sendType((BleBase) intent.getParcelableExtra(ServiceCommand.CONNECT_DATA_BASE), -1);
                     break;
                 case 4:
                     this.mBleAdapter.sendToken((BleBase) intent.getParcelableExtra(ServiceCommand.CONNECT_DATA_BASE));
+                    break;
+                case 101:
+                    this.mBleAdapter.sendTokenAlt((BleBase) intent.getParcelableExtra(ServiceCommand.CONNECT_DATA_BASE));
                     break;
                 case 5:
                     this.mBleAdapter.Modify((BleBase) intent.getParcelableExtra(ServiceCommand.CONNECT_DATA_BASE), intent.getStringExtra(ServiceCommand.CONNECT_DATA_OLD_PW), intent.getStringExtra(ServiceCommand.CONNECT_DATA_NEW_PW));

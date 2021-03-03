@@ -123,6 +123,11 @@ public class BleItem {
         EventTool.post(new WriteDataEvent(bleBase, SendDataAnalysis.SendToken(bleBase)));
     }
 
+    public void sendTokenAlt(BleBase bleBase) {
+        this.changesData.setmBleBase(bleBase);
+        EventTool.post(new WriteDataEvent(bleBase, SendDataAnalysis.SendTokenAlt(bleBase)));
+    }
+
     public void sendToken() {
         if (!TextUtils.isEmpty(this.changesData.getmBleBase().getPassWord())) {
             EventTool.post(new WriteDataEvent(this.changesData.getmBleBase(), SendDataAnalysis.SendToken(this.changesData.getmBleBase())));
@@ -154,9 +159,21 @@ public class BleItem {
         }
     }
 
+    public void sendAlt(int i) {
+        if (this.changesData.getmBleStatus().getToken() != null) {
+            EventTool.post(new WriteDataEvent(this.changesData.getmBleBase(), SendDataAnalysis.SendOtherAlt(this.context, this, i)));
+        }
+    }
+
     public void Unlock() {
         if (this.changesData.getmBleStatus().getToken() != null) {
             EventTool.post(new WriteDataEvent(this.changesData.getmBleBase(), SendDataAnalysis.SendOther(this.context, this, 1)));
+        }
+    }
+
+    public void UnlockAlt() {
+        if (this.changesData.getmBleStatus().getToken() != null) {
+            EventTool.post(new WriteDataEvent(this.changesData.getmBleBase(), SendDataAnalysis.SendOtherAlt(this.context, this, 1)));
         }
     }
 
