@@ -157,6 +157,12 @@ public class BleAdapter extends BluetoothGattCallback {
 //        this.mBleTool.GetAdapter().getBluetoothLeScanner().stopScan(new ScanCallback() {});
     }
 
+
+    public void getBattery(BleBase bleBase, int intExtra) {
+        if (currentBle != null && currentBle.changesData.getmBleBase().getAddress().equals(bleBase.getAddress()))
+            currentBle.getBattery();
+    }
+
     public void sendType(BleBase bleBase, int i) {
         if (i == -1) {
 //            Iterator<BleItem> it = this.mList.iterator();

@@ -183,6 +183,13 @@ public class BleItem {
         }
     }
 
+
+    public void getBattery() {
+        if (this.changesData.getmBleStatus().getToken() != null) {
+            EventTool.post(new WriteDataEvent(this.changesData.getmBleBase(), SendDataAnalysis.SendOther(this.context, this, 3)));
+        }
+    }
+
     public void Modify(String str, final String str2) {
         if (this.changesData.getmBleStatus().getToken() != null) {
             this.password = str2;

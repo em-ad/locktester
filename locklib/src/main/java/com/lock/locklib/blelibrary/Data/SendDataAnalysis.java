@@ -95,10 +95,10 @@ public class SendDataAnalysis {
             byteArrayOutputStream.write(BleCommon.mStatus, 0, BleCommon.mStatus.length);
         } else if (i == 1) {
             byteArrayOutputStream.write(BleCommon.mUnlock, 0, BleCommon.mUnlock.length);
-            ReadDataAnalysis.saveChat(context, bleItem.changesData.getmBleBase().getAddress(), 1);
         } else if (i == 2) {
             byteArrayOutputStream.write(BleCommon.mlock, 0, BleCommon.mlock.length);
-            ReadDataAnalysis.saveChat(context, bleItem.changesData.getmBleBase().getAddress(), 0);
+        }else if (i == 3) {
+            byteArrayOutputStream.write(BleCommon.mBatteryQuery, 0, BleCommon.mBatteryQuery.length);
         } else if (i == 1001) {
             byteArrayOutputStream.write(BleCommon.mAutoUnlockOpen, 0, BleCommon.mAutoUnlockOpen.length);
         } else if (i == 1002) {

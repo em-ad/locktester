@@ -31,6 +31,8 @@ public class BleExecutor {
                 c = 101;
             } else if (action.equals(ServiceCommand.CONNECT_ACTION_SEND_ALT)){
                 c = 102;
+            } else if (action.equals(ServiceCommand.GET_BATTERY)){
+                c = 103;
             }
             switch (action.hashCode()) {
                 case -1370382770:
@@ -95,6 +97,9 @@ public class BleExecutor {
                     break;
                 case 102:
                     this.mBleAdapter.sendTypeAlt((BleBase) intent.getParcelableExtra(ServiceCommand.CONNECT_DATA_BASE), intent.getIntExtra(ServiceCommand.CONNECT_DATA_TYPE, 0));
+                    break;
+                case 103:
+                    this.mBleAdapter.getBattery((BleBase) intent.getParcelableExtra(ServiceCommand.CONNECT_DATA_BASE), intent.getIntExtra(ServiceCommand.CONNECT_DATA_TYPE, 0));
                     break;
                 case 99:
                     this.mBleAdapter.sendType((BleBase) intent.getParcelableExtra(ServiceCommand.CONNECT_DATA_BASE), -1);

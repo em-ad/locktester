@@ -23,6 +23,7 @@ public class BleCommon {
     public static final byte[] mUnlock = {5, 1, 1, 1};
     public static final byte[] mUnlockAlt = {5, 1, 6};
     public static final byte[] mStatus = {5, 14, 1, 1};
+    public static final byte[] mBatteryQuery = {2, 1, 1, 1};
     public static final byte[] mVibrationClose = {5, 42, 1, 1};
     public static final byte[] mVibrationOpen = {5, 42, 1, 0};
     public static final byte[] mlock = {5, 7, 1, 1};

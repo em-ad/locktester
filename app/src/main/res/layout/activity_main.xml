@@ -103,6 +103,18 @@
             android:background="@android:drawable/screen_background_dark_transparent" />
 
         <TextView
+            android:id="@+id/getBattery"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:gravity="center"
+            android:text="Query Battery"
+            android:textColor="@color/white"
+            android:layout_marginBottom="12dp"
+            android:background="@android:drawable/screen_background_dark_transparent" />
+
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Select a device:"

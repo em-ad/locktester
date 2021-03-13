@@ -30,6 +30,7 @@ public class ServiceCommand {
     public static final String CONNECT_DATA_STATUS = "CONNECT_DATA_Status";
     public static final String CONNECT_DATA_TYPE = "CONNECT_DATA_TYPE";
     public static final String GET_STATUS = "GET_STATUS";
+    public static final String GET_BATTERY = "GET_BATTERY";
     public static final String CONNECT_ACTION_SEND_ALT = "CONNECT_ACTION_SEND_ALT";
 
     public static void start(Context context, NotificationBean notificationBean, CommandCallback callback) {
@@ -104,6 +105,13 @@ public class ServiceCommand {
         Intent intent = new Intent();
         Log.e("tag", "authenticatedAlt: " + new Gson().toJson(base));
         intent.setAction(CONNECT_ACTION_AUTHENTICATED_ALT);
+        intent.putExtra(CONNECT_DATA_BASE, base);
+        BleExecutor.getInstance().execute(intent, 0, 0, context, callback);
+    }
+
+    public static void getBattery(Context context, BleBase base, CommandCallback callback) {
+        Intent intent = new Intent();
+        intent.setAction(GET_BATTERY);
         intent.putExtra(CONNECT_DATA_BASE, base);
         BleExecutor.getInstance().execute(intent, 0, 0, context, callback);
     }

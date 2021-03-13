@@ -156,6 +156,15 @@ public class MainActivity extends AppCompatActivity implements ClickCallback, Co
 //                Toast.makeText(MainActivity.this, "Lock is now " + LockTester.getLockStatus(), Toast.LENGTH_SHORT).show();
             }
         });
+        binding.getBattery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(binding.editText.getText().toString().length() > 0){
+                    LockTester.getInstance().getBatteryByAddress(MainActivity.this, binding.editText.getText().toString());
+                    return;
+                }
+            }
+        });
     }
 
     private void initViews() {
@@ -190,10 +199,21 @@ public class MainActivity extends AppCompatActivity implements ClickCallback, Co
     @Override
     public void commandExecuted(OperationStatus status) {
         binding.selected.status.setText(status.getName());
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                Toast.makeText(MainActivity.this, status.getName(), Toast.LENGTH_SHORT).show();
+//            }
+//        });
+    }
+
+    @Override
+    public void commandExecuted(OperationStatus status, String code) {
+        binding.selected.status.setText(status.getName());
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(MainActivity.this, status.getName(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "BATTERY% = " + code , Toast.LENGTH_SHORT).show();
             }
         });
     }

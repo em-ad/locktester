@@ -283,6 +283,13 @@ public class LockTester implements Serializable, CommandCallback {
         return true;
     }
 
+
+    public void getBatteryByAddress(Context context, String bleCode) {
+        BleBase base = new BleBase();
+        base.setAddress(getActualCode(bleCode));
+        ServiceCommand.getBattery(context, base, instance);
+    }
+
     public OperationStatus getLockStatusByStatus(BleStatus bleStatus) {
         if (bleStatus == null)
             return OperationStatus.ERR;
@@ -342,7 +349,11 @@ public class LockTester implements Serializable, CommandCallback {
 
     @Override
     public void commandExecuted(OperationStatus status) {
-//        Log.e("tag", "commandExecuted: " + status.getName() );
         this.callback.commandExecuted(status);
+    }
+
+    @Override
+    public void commandExecuted(OperationStatus status, String code) {
+        this.callback.commandExecuted(status, code);
     }
 }

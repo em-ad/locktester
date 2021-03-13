@@ -49,6 +49,9 @@ public class ReadDataAnalysis {
                 callback.commandExecuted(OperationStatus.UNLOCKED);
             } else if (res.toLowerCase().startsWith("050f0101") || res.toLowerCase().startsWith("05080100")){
                 callback.commandExecuted(OperationStatus.LOCKED);
+            } else if (res.toLowerCase().startsWith("020201")){
+                callback.commandExecuted(OperationStatus.BATTERY, res.substring(6, 8));
+                return;
             }
 
             byte b = read2[0];
