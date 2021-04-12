@@ -65,8 +65,8 @@ public class MainActivity extends AppCompatActivity implements ClickCallback, Co
         initViews();
 //        initBle();
         setClickListeners();
-//        binding.editText.setText("0787f830022f2761");
-        binding.editText.setText("0103b8804f5367a2");
+        binding.editText.setText("0787f830022f2761");
+//        binding.editText.setText("0103b8804f5367a2");
         LockTester.getInstance().getSelectedEventLiveData().observe(this, new Observer<ChangesDeviceEvent>() {
             @SuppressLint("SetTextI18n")
             @Override
@@ -134,8 +134,8 @@ public class MainActivity extends AppCompatActivity implements ClickCallback, Co
             @Override
             public void onClick(View v) {
                 if(binding.editText.getText().toString().length() > 0){
-//                    LockTester.getInstance().authenticateByAddress(MainActivity.this, binding.editText.getText().toString(), "123456");
-                    LockTester.getInstance().authenticateByAddressAlt(MainActivity.this, binding.editText.getText().toString(), "000000");
+                    LockTester.getInstance().authenticateByAddress(MainActivity.this, binding.editText.getText().toString(), "123456");
+//                    LockTester.getInstance().authenticateByAddressAlt(MainActivity.this, binding.editText.getText().toString(), "000000");
                     return;
                 }
                 if (!checkEvent())

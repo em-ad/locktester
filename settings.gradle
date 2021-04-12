@@ -1,3 +1,4 @@
+include ':locklib2'
 include ':locklib'
 include ':app'
 rootProject.name = "LockTester"
