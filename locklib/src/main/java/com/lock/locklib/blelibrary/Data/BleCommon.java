@@ -9,7 +9,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class BleCommon {
     private static final String TAG = "BleCommon";
-    public static final byte[] defaultkey = {32, 87, ReadDataAnalysis.mName, 82, 54, 75, 63, 71, 48, 80, 65, 88, 17, 99, 45, ReadDataAnalysis.Vibration_Open};
+    public static final byte[] defaultkey = {32, 87, 47, 82, 54, 75, 63, 71, 48, 80, 65, 88, 17, 99, 45, 43};
     public static final byte[] mAutoUnlockClose = {5, 39, 1, 1};
     public static final byte[] mAutoUnlockOpen = {5, 39, 1, 0};
     public static final byte[] mConsignmentClose = {5, 48, 1, 1};
@@ -32,9 +32,8 @@ public class BleCommon {
         byte[] bArr = new byte[(16 - byteArrayOutputStream.size())];
         new Random().nextBytes(bArr);
         byteArrayOutputStream.write(bArr, 0, bArr.length);
-        Log.i(TAG, "发送数据(未加密)=" + BleTool.ByteToString(byteArrayOutputStream.toByteArray()));
+        Log.e(TAG, "Encrypting " + BleTool.ByteToString(byteArrayOutputStream.toByteArray()));
         byte[] Encrypt = Encrypt(byteArrayOutputStream.toByteArray());
-        Log.i(TAG, "发送数据(加密)=" + BleTool.ByteToString(Encrypt));
         return Encrypt;
     }
 
@@ -49,7 +48,7 @@ public class BleCommon {
         try {
             SecretKeySpec secretKeySpec = new SecretKeySpec(defaultkey, "AES");
             Cipher instance = Cipher.getInstance("AES/ECB/NoPadding");
-            instance.init(1, secretKeySpec);
+            instance.init(Cipher.ENCRYPT_MODE, secretKeySpec);
             return instance.doFinal(bArr);
         } catch (Exception unused) {
             return null;
@@ -60,7 +59,7 @@ public class BleCommon {
         try {
             SecretKeySpec secretKeySpec = new SecretKeySpec(defaultkey, "AES");
             Cipher instance = Cipher.getInstance("AES/ECB/NoPadding");
-            instance.init(2, secretKeySpec);
+            instance.init(Cipher.DECRYPT_MODE, secretKeySpec);
             return instance.doFinal(bArr);
         } catch (Exception unused) {
             return null;

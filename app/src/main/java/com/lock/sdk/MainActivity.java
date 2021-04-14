@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements ClickCallback, Co
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        startActivity(new Intent(this, MainActivity2.class));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkPermissions();
         }
@@ -65,8 +67,9 @@ public class MainActivity extends AppCompatActivity implements ClickCallback, Co
         initViews();
 //        initBle();
         setClickListeners();
-        binding.editText.setText("0787f830022f2761");
+//        binding.editText.setText("0787f830022f2761");
 //        binding.editText.setText("0103b8804f5367a2");
+        binding.editText.setText("0103b8804f53af4f");
         LockTester.getInstance().getSelectedEventLiveData().observe(this, new Observer<ChangesDeviceEvent>() {
             @SuppressLint("SetTextI18n")
             @Override
