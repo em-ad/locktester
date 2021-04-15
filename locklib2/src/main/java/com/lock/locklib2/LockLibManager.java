@@ -1,5 +1,6 @@
 package com.lock.locklib2;
 
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattServer;
@@ -11,6 +12,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.UUID;
 
@@ -25,6 +27,10 @@ public class LockLibManager extends BleManager {
     public static final byte[] defaultkey = {32, 87, 47, 82, 54, 75, 63, 71, 48, 80, 65, 88, 17, 99, 45, 43};
     public static final UUID WriteCharacteristicUUID = UUID.fromString("000036f5-0000-1000-8000-00805f9b34fb");
     public static final UUID WriteServiceUUID = UUID.fromString("0000fee7-0000-1000-8000-00805f9b34fb");
+    private BluetoothDevice device;
+
+    public static final byte[] mToKenAlt = {6, 1, 1, 1};
+    private static final String password = "000000";
 
     private BluetoothGattCharacteristic mWriteCharacteristic;
     private BluetoothGattCharacteristic serverCharacteristic;
@@ -37,9 +43,48 @@ public class LockLibManager extends BleManager {
         super(context, handler);
     }
 
+    public void disconnectDevices() {
+        disconnect().enqueue();
+    }
+
+    public void connectDevice(BluetoothDevice s) {
+        connect(s)
+                .timeout(3000)
+                .retry(3, 100)
+                .done(connecting -> Log.e("TAG", "Device initiated " + s.getAddress()))
+                .enqueue();
+        device = s;
+    }
+
+    public void obtainToken() {
+
+    }
+
+    public boolean authenticateBlack() {
+        if (device == null) {
+            return false;
+        } else {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            byteArrayOutputStream.write(mToKenAlt, 0, mToKenAlt.length);
+            int i = 0;
+//            while (i < password.length()) {
+//                int i2 = i + 1;
+//                byteArrayOutputStream.write(password.substring(i, i2).getBytes(), 0, password.substring(i, i2).getBytes().length);
+//                i = i2;
+//            }
+            Log.e("TAG", "authenticateBlack unc: " + ByteToString(byteArrayOutputStream.toByteArray()) );
+            Log.e("TAG", "authenticateBlack enc: " + addCrcAndEnd(byteArrayOutputStream) );
+            beginReliableWrite()
+                    .add(writeCharacteristic(mWriteCharacteristic, addCrcAndEnd(byteArrayOutputStream)))
+                    .done(callback -> Log.e("tag", "Authenticated Black"))
+                    .enqueue();
+            return true;
+        }
+    }
+
     @NonNull
     @Override
-    protected BleManagerGattCallback getGattCallback() {
+    public BleManagerGattCallback getGattCallback() {
         return new MyManagerGattCallback();
     }
 
@@ -63,6 +108,7 @@ public class LockLibManager extends BleManager {
         // Return true if all required services are found, false otherwise.
         @Override
         public boolean isRequiredServiceSupported(@NonNull final BluetoothGatt gatt) {
+            Log.e("TAG", "isRequiredServiceSupported: " + gatt.getDevice().getAddress() );
             final BluetoothGattService service = gatt.getService(WriteServiceUUID);
             if (service != null) {
                 mWriteCharacteristic = service.getCharacteristic(WriteCharacteristicUUID);
@@ -97,13 +143,13 @@ public class LockLibManager extends BleManager {
             // You may enqueue multiple operations. A queue ensures that all operations are
             // performed one after another, but it is not required.
             beginAtomicRequestQueue()
+//                    .a
                     .add(requestMtu(247) // Remember, GATT needs 3 bytes extra. This will allow packet size of 244 bytes.
                             .with((device, mtu) -> log(Log.ERROR, "MTU set to " + mtu))
                             .fail((device, status) -> log(Log.ERROR, "Requested MTU not supported: " + status)))
                     .add(setPreferredPhy(PhyRequest.PHY_LE_2M_MASK, PhyRequest.PHY_LE_2M_MASK, PhyRequest.PHY_OPTION_NO_PREFERRED)
                             .fail((device, status) -> log(Log.ERROR, "Requested PHY not supported: " + status)))
-                    .add(enableNotifications(mWriteCharacteristic))
-                    .done(device -> log(Log.INFO, "Target initialized"))
+                    .done(device -> log(Log.ERROR, "Target initialized"))
                     .enqueue();
             // You may easily enqueue more operations here like such:
 //            writeCharacteristic(mWriteCharacteristic, "Hello World!".getBytes())

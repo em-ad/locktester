@@ -4,9 +4,13 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+
+import java.util.ArrayList;
 
 import no.nordicsemi.android.ble.observer.ConnectionObserver;
 
@@ -14,23 +18,45 @@ public class BleConnectionManager implements ConnectionObserver {
 
     private final String TAG = "BLE MGR";
 
-    private LockLibManager manager;
+    public LockLibManager manager;
     public BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
+    private Context context;
     // [...]
 
-    public void connect(@NonNull final BluetoothDevice device, Context context) {
-        manager = new LockLibManager(context);
-        manager.setConnectionObserver(this);
+    private void connect(@NonNull final BluetoothDevice device) {
         manager.connect(device)
-                .timeout(10000)
+                .timeout(3000)
                 .retry(3, 100)
-                .done(connecting -> Log.i("TAG", "Device initiated"))
+                .done(connecting -> Log.e("TAG", "Device initiated" + device.getAddress()))
                 .enqueue();
     }
 
     public BleConnectionManager(Context context) {
+        this.context = context;
         initialize(context);
+        if (manager == null) {
+            manager = new LockLibManager(context);
+            manager.setConnectionObserver(this);
+        }
+    }
+
+    public void addDevice(String addr) {
+        try {
+            manager.disconnect().enqueue();
+        } catch (NullPointerException npe) {
+            npe.getStackTrace();
+        }
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                manager.connectDevice(mBluetoothAdapter.getRemoteDevice(addr));
+            }
+        }, 1000);
+    }
+
+    public void connect(String address) {
+        connect(mBluetoothAdapter.getRemoteDevice(address));
     }
 
     public boolean initialize(Context context) {
@@ -54,17 +80,20 @@ public class BleConnectionManager implements ConnectionObserver {
 
     @Override
     public void onDeviceConnected(@NonNull BluetoothDevice device) {
+        Toast.makeText(context, device.getAddress() + " Connected", Toast.LENGTH_SHORT).show();
         Log.e(TAG, "onDeviceConnected: " + device.getAddress());
     }
 
     @Override
     public void onDeviceFailedToConnect(@NonNull BluetoothDevice device, int reason) {
-        Log.e(TAG, "onDeviceFailedToConnect: " + device.getAddress() + " BECAUSE " + reason);
+        Log.e(TAG, "onDeviceFailedToConnect: " + device.getAddress() + " BECAUSE " + ConnectionReason.getValue(reason));
+        Toast.makeText(context, device.getAddress() + " Failed To Connect Because " + ConnectionReason.getValue(reason), Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onDeviceReady(@NonNull BluetoothDevice device) {
         Log.e(TAG, "onDeviceReady: " + device.getAddress());
+        manager.authenticateBlack();
     }
 
     @Override
@@ -74,6 +103,7 @@ public class BleConnectionManager implements ConnectionObserver {
 
     @Override
     public void onDeviceDisconnected(@NonNull BluetoothDevice device, int reason) {
-        Log.e(TAG, "onDeviceDisconnected: " + device.getAddress() + " BECAUSE " + reason);
+        Log.e(TAG, "onDeviceDisconnected: " + device.getAddress() + " BECAUSE " + ConnectionReason.getValue(reason));
+        Toast.makeText(context, device.getAddress() + " Disconnected Because " + ConnectionReason.getValue(reason), Toast.LENGTH_SHORT).show();
     }
 }

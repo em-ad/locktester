@@ -137,8 +137,8 @@ public class MainActivity extends AppCompatActivity implements ClickCallback, Co
             @Override
             public void onClick(View v) {
                 if(binding.editText.getText().toString().length() > 0){
-                    LockTester.getInstance().authenticateByAddress(MainActivity.this, binding.editText.getText().toString(), "123456");
-//                    LockTester.getInstance().authenticateByAddressAlt(MainActivity.this, binding.editText.getText().toString(), "000000");
+//                    LockTester.getInstance().authenticateByAddress(MainActivity.this, binding.editText.getText().toString(), "123456");
+                    LockTester.getInstance().authenticateByAddressAlt(MainActivity.this, binding.editText.getText().toString(), "000000");
                     return;
                 }
                 if (!checkEvent())
