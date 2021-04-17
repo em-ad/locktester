@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.lock.locklib.blelibrary.Adapter.BleItem;
 import com.lock.locklib.blelibrary.base.BleBase;
 import com.lock.locklib.blelibrary.base.BleStatus;
+import com.lock.locklib.blelibrary.tool.BleTool;
 
 import java.io.ByteArrayOutputStream;
 
@@ -146,6 +147,7 @@ public class SendDataAnalysis {
             byteArrayOutputStream.write(BleCommon.mConsignmentClose, 0, BleCommon.mConsignmentClose.length);
         }
         byteArrayOutputStream.write(bleItem.changesData.getmBleStatus().getToken(), 0, bleItem.changesData.getmBleStatus().getToken().length);
+        Log.e("TAG", "SendOtherAlt: " + BleTool.ByteToString(byteArrayOutputStream.toByteArray()));
         return BleCommon.addCrcAndEnd(byteArrayOutputStream);
     }
 }

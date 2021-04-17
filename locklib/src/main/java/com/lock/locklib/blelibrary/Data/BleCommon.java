@@ -56,6 +56,7 @@ public class BleCommon {
     }
 
     private static byte[] Decrypt(byte[] bArr) {
+        Log.e(TAG, "Decrypt: " + bArr.length + " " + bArr );
         try {
             SecretKeySpec secretKeySpec = new SecretKeySpec(defaultkey, "AES");
             Cipher instance = Cipher.getInstance("AES/ECB/NoPadding");

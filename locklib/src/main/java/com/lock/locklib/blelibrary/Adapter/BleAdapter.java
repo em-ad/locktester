@@ -382,6 +382,9 @@ public class BleAdapter extends BluetoothGattCallback {
 //                Log.e(TAG, "onCharacteristicChanged: " + BleTool.ByteToString(bluetoothGattCharacteristic.getValue()));
 //            }
 //        }
+
+        Log.e(TAG, "onCharacteristicChanged: " + bluetoothGattCharacteristic.getValue() + " " + bluetoothGattCharacteristic.getValue().length );
+
         if (currentBle != null)
             currentBle.readData(bluetoothGattCharacteristic.getValue(), callback);
     }

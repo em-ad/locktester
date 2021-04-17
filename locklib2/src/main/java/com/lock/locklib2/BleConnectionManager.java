@@ -2,9 +2,15 @@ package com.lock.locklib2;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattServerCallback;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -13,6 +19,9 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 
 import no.nordicsemi.android.ble.observer.ConnectionObserver;
+
+import static com.lock.locklib2.LockLibManager.ByteToString;
+import static com.lock.locklib2.LockLibManager.Decrypt;
 
 public class BleConnectionManager implements ConnectionObserver {
 
@@ -25,6 +34,7 @@ public class BleConnectionManager implements ConnectionObserver {
     // [...]
 
     private void connect(@NonNull final BluetoothDevice device) {
+
         manager.connect(device)
                 .timeout(3000)
                 .retry(3, 100)
@@ -52,7 +62,13 @@ public class BleConnectionManager implements ConnectionObserver {
             public void run() {
                 manager.connectDevice(mBluetoothAdapter.getRemoteDevice(addr));
             }
-        }, 1000);
+        }, 800);
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                manager.unlockBlack();
+//            }
+//        }, 2000);
     }
 
     public void connect(String address) {
@@ -70,6 +86,7 @@ public class BleConnectionManager implements ConnectionObserver {
         if (this.mBluetoothAdapter == null) {
             return false;
         }
+//        this.mBluetoothAdapter.startLeScan(scanCallback);
         return true;
     }
 
@@ -93,7 +110,7 @@ public class BleConnectionManager implements ConnectionObserver {
     @Override
     public void onDeviceReady(@NonNull BluetoothDevice device) {
         Log.e(TAG, "onDeviceReady: " + device.getAddress());
-        manager.authenticateBlack();
+//        manager.authenticateBlack();
     }
 
     @Override

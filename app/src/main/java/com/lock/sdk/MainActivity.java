@@ -58,7 +58,10 @@ public class MainActivity extends AppCompatActivity implements ClickCallback, Co
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        startActivity(new Intent(this, MainActivity2.class));
+        {
+            startActivity(new Intent(this, MainActivity2.class));
+            finish();
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkPermissions();
         }
@@ -96,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements ClickCallback, Co
         binding.unlock.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(binding.editText.getText().toString().length() > 0){
+                if (binding.editText.getText().toString().length() > 0) {
 //                    LockTester.getInstance().unlockByAddress(MainActivity.this, binding.editText.getText().toString());
                     LockTester.getInstance().unlockByAddressAlt(MainActivity.this, binding.editText.getText().toString());
                     return;
@@ -110,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements ClickCallback, Co
         binding.disconnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(binding.editText.getText().toString().length() > 0){
+                if (binding.editText.getText().toString().length() > 0) {
                     LockTester.getInstance().disconnectByAddress(MainActivity.this, binding.editText.getText().toString());
                     return;
                 }
@@ -123,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements ClickCallback, Co
         binding.connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(binding.editText.getText().toString().length() > 0){
+                if (binding.editText.getText().toString().length() > 0) {
                     LockTester.getInstance().connectByAddress(MainActivity.this, binding.editText.getText().toString());
                     return;
                 }
@@ -136,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements ClickCallback, Co
         binding.authenticate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(binding.editText.getText().toString().length() > 0){
+                if (binding.editText.getText().toString().length() > 0) {
 //                    LockTester.getInstance().authenticateByAddress(MainActivity.this, binding.editText.getText().toString(), "123456");
                     LockTester.getInstance().authenticateByAddressAlt(MainActivity.this, binding.editText.getText().toString(), "000000");
                     return;
@@ -149,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements ClickCallback, Co
         binding.getStatus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(binding.editText.getText().toString().length() > 0){
+                if (binding.editText.getText().toString().length() > 0) {
                     LockTester.getInstance().getStatusByAddress(MainActivity.this, binding.editText.getText().toString());
                     return;
                 }
@@ -162,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements ClickCallback, Co
         binding.getBattery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(binding.editText.getText().toString().length() > 0){
+                if (binding.editText.getText().toString().length() > 0) {
                     LockTester.getInstance().getBatteryByAddress(MainActivity.this, binding.editText.getText().toString());
                     return;
                 }
@@ -216,7 +219,7 @@ public class MainActivity extends AppCompatActivity implements ClickCallback, Co
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(MainActivity.this, "BATTERY% = " + code , Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "BATTERY% = " + code, Toast.LENGTH_SHORT).show();
             }
         });
     }

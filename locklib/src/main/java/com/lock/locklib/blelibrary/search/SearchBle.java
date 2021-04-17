@@ -44,6 +44,7 @@ public class SearchBle {
             }
             if (bleBase != null) {
                 byte[] byteArray = data.getByteArray(SearchBle.this.hanKey_scanRecord);
+//                Log.e("TAG", "handleMessage: " + byteArray.length );
                 if (BleTool.ByteToString(byteArray).contains(BleTool.ByteToString(SearchBle.this.type))) {
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                     int i = 0;
@@ -52,6 +53,7 @@ public class SearchBle {
                             if ((byteArray[i] & 255) == (SearchBle.this.type[0] & 255) && (byteArray[i + 1] & 255) == (SearchBle.this.type[1] & 255) && (byteArray[i + 2] & 255) == (SearchBle.this.type[2] & 255)) {
                                 byteArrayOutputStream.write(byteArray, i, byteArray.length - i);
                                 byteArray = byteArrayOutputStream.toByteArray();
+//                                Log.e("TAG", "handleMessage: " + byteArray + " " + byteArrayOutputStream );
                                 break;
                             }
                             i++;
@@ -123,7 +125,7 @@ public class SearchBle {
         public void onLeScan(BluetoothDevice bluetoothDevice, int i, byte[] bArr) {
             if (i >= SearchBle.this.minrssi && !TextUtils.isEmpty(bluetoothDevice.getName())) {
 //                Log.e("abc", bluetoothDevice.getName() + "----------" + BleTool.ByteToString(bArr));
-//                Log.e("abc", bluetoothDevice.getAddress() + "----------" + BleTool.ByteToString(bArr));
+//                Log.e("abc", bluetoothDevice.getAddress() + "----------" + BleTool.ByteToString(bArr) + " " + bArr.length);
                 Bundle bundle = new Bundle();
                 BleBase bleBase = new BleBase();
                 bleBase.setName(bluetoothDevice.getName());

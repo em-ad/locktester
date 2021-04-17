@@ -84,7 +84,6 @@ public class BleExecutor {
                         this.mBleAdapter = new BleAdapter(context, callback);
                     }
                     this.mBleAdapter.start();
-                    Log.e("tag", "execute: " + " adapter init" );
                     break;
                 case 1:
                     this.mBleAdapter.connect((BleBase) intent.getParcelableExtra(ServiceCommand.CONNECT_DATA_BASE), (BleStatus) intent.getParcelableExtra(ServiceCommand.CONNECT_DATA_STATUS));

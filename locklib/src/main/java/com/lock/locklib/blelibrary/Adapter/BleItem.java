@@ -230,6 +230,7 @@ public class BleItem {
             characteristic.getWriteType();
             characteristic.setValue(bArr);
             characteristic.setWriteType(1);
+            Log.e(TAG, "LostWriteData: " + characteristic.getValue() + " " + characteristic.getUuid() + " "  + characteristic.getService().getUuid() );
             boolean writeCharacteristic = this.mBluetoothGatt.writeCharacteristic(characteristic);
             String str = TAG;
             Log.e(str, writeCharacteristic + " WRITING LostWriteData " + BleTool.ByteToString(bArr));
