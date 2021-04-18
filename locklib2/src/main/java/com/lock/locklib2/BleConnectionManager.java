@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import no.nordicsemi.android.ble.observer.ConnectionObserver;
@@ -86,7 +87,13 @@ public class BleConnectionManager implements ConnectionObserver {
         if (this.mBluetoothAdapter == null) {
             return false;
         }
-//        this.mBluetoothAdapter.startLeScan(scanCallback);
+        this.mBluetoothAdapter.startLeScan(new BluetoothAdapter.LeScanCallback() {
+            @Override
+            public void onLeScan(BluetoothDevice bluetoothDevice, int i, byte[] bytes) {
+//                Log.e(TAG, "onLeScan: " + Decrypt(bytes) );
+            }
+        });
+
         return true;
     }
 
