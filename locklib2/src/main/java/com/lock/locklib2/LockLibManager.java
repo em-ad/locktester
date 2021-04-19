@@ -41,12 +41,16 @@ public class LockLibManager extends BleManager {
 
 
     protected BluetoothDevice device;
+    private byte[] deviceToken = new byte[4];
 
     public static final byte[] mToKenAlt = {6, 1, 1, 1};
     public static final byte[] mUnlockAlt = {5, 1, 6};
+    public static final byte[] mStatus = {5, 14, 1, 1};
+    public static final byte[] mBattery = {2, 1, 1, 1};
     private static final String password = "000000";
 
     BluetoothGatt gatt;
+    CommandCallback callback;
 
     private BluetoothGattCharacteristic mWriteCharacteristic;
     private BluetoothGattCharacteristic mReadCharacteristic;
@@ -60,8 +64,9 @@ public class LockLibManager extends BleManager {
         }
     };
 
-    public LockLibManager(@NonNull Context context) {
+    public LockLibManager(@NonNull Context context, CommandCallback callback) {
         super(context);
+        this.callback = callback;
     }
 
     public LockLibManager(@NonNull Context context, @NonNull Handler handler) {
@@ -82,28 +87,58 @@ public class LockLibManager extends BleManager {
         device = s;
     }
 
-    public void obtainToken() {
-
-    }
-
     public void unlockBlack() {
         if (gatt == null) {
             Log.e("TAG", "unlockBlack: " + " fuck gatt is null");
         }
-        ByteArrayOutputStream byteArrayOutputStream2 = new ByteArrayOutputStream(16);
-        byteArrayOutputStream2.write(mUnlockAlt, 0, mUnlockAlt.length);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(16);
+        byteArrayOutputStream.write(mUnlockAlt, 0, mUnlockAlt.length);
         int j = 0;
         while (j < 6) {
             int i2 = j + 1;
-            byteArrayOutputStream2.write("000000".substring(j, i2).getBytes(), 0, "000000".substring(j, i2).getBytes().length);
+            byteArrayOutputStream.write("000000".substring(j, i2).getBytes(), 0, "000000".substring(j, i2).getBytes().length);
             j = i2;
         }
+        byteArrayOutputStream.write(deviceToken, 0, deviceToken.length);
+
         mWriteCharacteristic.getWriteType();
-        mWriteCharacteristic.setValue(addCrcAndEnd(byteArrayOutputStream2));
+        mWriteCharacteristic.setValue(addCrcAndEnd(byteArrayOutputStream));
         mWriteCharacteristic.setWriteType(1);
         beginReliableWrite()
                 .add(writeCharacteristic(mWriteCharacteristic, mWriteCharacteristic.getValue()))
                 .done(callback -> Log.e("TAG", "unlocked? black"))
+                .enqueue();
+    }
+
+    public void getStatus() {
+        if (gatt == null) {
+            Log.e("TAG", "getStatus: " + " fuck gatt is null");
+        }
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(16);
+        byteArrayOutputStream.write(mStatus, 0, mStatus.length);
+        byteArrayOutputStream.write(deviceToken, 0, deviceToken.length);
+        mWriteCharacteristic.getWriteType();
+        mWriteCharacteristic.setValue(addCrcAndEnd(byteArrayOutputStream));
+        mWriteCharacteristic.setWriteType(1);
+        beginReliableWrite()
+                .add(writeCharacteristic(mWriteCharacteristic, mWriteCharacteristic.getValue()))
+                .done(callback -> Log.e("TAG", "get status sent"))
+                .enqueue();
+    }
+
+    public void getBattery() {
+        if (gatt == null) {
+            Log.e("TAG", "getBattery: " + " fuck gatt is null");
+        }
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(16);
+        byteArrayOutputStream.write(mBattery, 0, mBattery.length);
+        byteArrayOutputStream.write(deviceToken, 0, deviceToken.length);
+        mWriteCharacteristic.getWriteType();
+        mWriteCharacteristic.setValue(addCrcAndEnd(byteArrayOutputStream));
+        mWriteCharacteristic.setWriteType(1);
+        beginReliableWrite()
+                .add(writeCharacteristic(mWriteCharacteristic, mWriteCharacteristic.getValue()))
+                .done(callback -> Log.e("TAG", "get battery sent"))
                 .enqueue();
     }
 
@@ -113,28 +148,17 @@ public class LockLibManager extends BleManager {
         } else {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             byteArrayOutputStream.write(mToKenAlt, 0, mToKenAlt.length);
-            Log.e("TAG", "authenticateBlack unc: " + ByteToString(byteArrayOutputStream.toByteArray()));
             mWriteCharacteristic.getWriteType();
             mWriteCharacteristic.setValue(addCrcAndEnd(byteArrayOutputStream));
             mWriteCharacteristic.setWriteType(1);
-//            BluetoothGatt gatt = device.connectGatt(getContext(), false, new BluetoothGattCallback() {
-//                @Override
-//                public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-//                    super.onCharacteristicChanged(gatt, characteristic);
-//                    Log.e("TAG", "onCharacteristicChanged2: " );
-//                }
-//            });
             beginAtomicRequestQueue()
                     .add(writeCharacteristic(mWriteCharacteristic, mWriteCharacteristic.getValue()).with(new DataSentCallback() {
                         @Override
                         public void onDataSent(@NonNull BluetoothDevice device, @NonNull Data data) {
-                            Log.e("TAG", "onDataSent: " + device.getName() + " " + Decrypt(data.getValue()) );
+                            Log.e("TAG", "onDataSent: " + device.getName() + " " + Decrypt(data.getValue()));
                         }
                     }))
                     .done(callback -> Log.e("tag", "Authenticated Black"))
-//                    .add(writeCharacteristic(mWriteCharacteristic, addCrcAndEnd(byteArrayOutputStream2)))
-//                    .done(callback -> Log.e("TAG", "unlocked black! "))
-                    .setHandler(mHandler)
                     .enqueue();
 
             beginReliableWrite().add(readCharacteristic(mReadCharacteristic).with(new DataReceivedCallback() {
@@ -155,59 +179,19 @@ public class LockLibManager extends BleManager {
 
     private class MyManagerGattCallback extends BleManagerGattCallback {
 
-        // This method will be called when the device is connected and services are discovered.
-        // You need to obtain references to the characteristics and descriptors that you will use.
-        // Return true if all required services are found, false otherwise.
         @Override
         public boolean isRequiredServiceSupported(@NonNull final BluetoothGatt gatt) {
             LockLibManager.this.gatt = gatt;
-            Log.e("TAG", "isRequiredServiceSupported: " + gatt.getDevice().getAddress());
             final BluetoothGattService service = gatt.getService(writeServiceUUID);
             if (service != null) {
                 mWriteCharacteristic = service.getCharacteristic(writeCharacteristicUUID);
                 mReadCharacteristic = service.getCharacteristic(readCharacteristicUUID);
             }
-
-//            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(16);
-//            ByteArrayOutputStream byteArrayOutputStream2 = new ByteArrayOutputStream(16);
-//            byteArrayOutputStream.write(mToKenAlt, 0, mToKenAlt.length);
-//            byteArrayOutputStream2.write(mUnlockAlt, 0, mUnlockAlt.length);
-//            int j = 0;
-//            while (j < 6) {
-//                int i2 = j + 1;
-//                byteArrayOutputStream2.write("000000".substring(j, i2).getBytes(), 0, "000000".substring(j, i2).getBytes().length);
-//                j = i2;
-//            }
-//            Log.e("TAG", "authenticateBlack unc: " + ByteToString(byteArrayOutputStream.toByteArray()));
-//            Log.e("TAG", "unlock unc: " + ByteToString(byteArrayOutputStream2.toByteArray()));
-//            mWriteCharacteristic.getWriteType();
-//            mWriteCharacteristic.setValue(addCrcAndEnd(byteArrayOutputStream));
-//            mWriteCharacteristic.setWriteType(1);
-//
-//            gatt.writeCharacteristic(mWriteCharacteristic);
-
             boolean writeRequest = true;
-//            if (writeCharacteristic != null) {
-//                final int properties = controlPointCharacteristic.getProperties();
-//                writeRequest = (properties & BluetoothGattCharacteristic.PROPERTY_WRITE) != 0;
-//                writeCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
-//            }
-            // Return true if all required services have been found
-
             gatt.setCharacteristicNotification(mReadCharacteristic, true);
             BluetoothGattDescriptor descriptor = mReadCharacteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIG);
             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-            gatt.writeDescriptor(descriptor);/*.done(new SuccessCallback() {
-                @Override
-                public void onRequestCompleted(@NonNull BluetoothDevice device) {
-                    Log.e("TAG", "onRequestCompleted: writeDescriptor" );
-                }
-            }).fail(new FailCallback() {
-                @Override
-                public void onRequestFailed(@NonNull BluetoothDevice device, int status) {
-                    Log.e("TAG", "onRequestFailed: " + "writeDescriptor" + " " + status );
-                }
-            }).enqueue();*/
+            gatt.writeDescriptor(descriptor);
 
             return mWriteCharacteristic != null && writeRequest;
         }
@@ -224,34 +208,20 @@ public class LockLibManager extends BleManager {
         // MTU or write some initial data. Do it here.
         @Override
         protected void initialize() {
-            // You may enqueue multiple operations. A queue ensures that all operations are
-            // performed one after another, but it is not required.
             beginReliableWrite()
-                    .add(requestMtu(23) // Remember, GATT needs 3 bytes extra. This will allow packet size of 244 bytes.
-                            .with((device, mtu) -> Log.e("TAG", "mtu set to : " + mtu))
-                            .fail((device, status) -> Log.e("TAG", "Requested MTU not supported: " + status)))
+                    .add(requestMtu(23)
+                            .with((device, mtu) -> Log.i("TAG", "mtu set to : " + mtu))
+                            .fail((device, status) -> Log.i("TAG", "Requested MTU not supported: " + status)))
                     .add(requestConnectionPriority(CONNECTION_PRIORITY_BALANCED))
                     .done(device -> Log.e("TAG", "initialized! "))
                     .enqueue();
-            // You may easily enqueue more operations here like such:
-//            writeCharacteristic(mWriteCharacteristic, "Hello World!".getBytes())
-//                    .done(device -> log(Log.INFO, "Greetings sent"))
-//                    .enqueue();
-
-
-            // Set a callback for your notifications. You may also use waitForNotification(...).
-            // Both callbacks will be called when notification is received.
-//            setNotificationCallback(writeCharacteristic);
-            // If you need to send very long data using Write Without Response, use split()
-            // or define your own splitter in split(DataSplitter splitter, WriteProgressCallback cb).
-//            writeCharacteristic(secondCharacteristic, "Very, very long data that will no fit into MTU")
-//                    .split()
-//                    .enqueue();
         }
 
         @Override
         protected void onDeviceDisconnected() {
             Log.e("TAG", "onDeviceDisconnected: ");
+            callback.commandExecuted(OperationStatus.DISCONNECTED);
+            device = null;
             // Device disconnected. Release your references here.
 //            mWriteCharacteristic = null;
         }
@@ -275,21 +245,32 @@ public class LockLibManager extends BleManager {
         }
 
         @Override
-        protected void onDescriptorWrite(@NonNull BluetoothGatt gatt, @NonNull BluetoothGattDescriptor descriptor) {
-            super.onDescriptorWrite(gatt, descriptor);
-            Log.e("TAG", "onDescriptorWrite: " + descriptor.getValue().toString());
-        }
-
-        @Override
-        protected void onDescriptorRead(@NonNull BluetoothGatt gatt, @NonNull BluetoothGattDescriptor descriptor) {
-            super.onDescriptorRead(gatt, descriptor);
-            Log.e("TAG", "onDescriptorRead: " + descriptor.getValue().toString());
-        }
-
-        @Override
         protected void onCharacteristicNotified(@NonNull BluetoothGatt gatt, @NonNull BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicNotified(gatt, characteristic);
-            Log.e("TAG", "onCharacteristicNotified: " + ByteToString(Decrypt(characteristic.getValue())));
+            byte[] result = Decrypt(characteristic.getValue());
+            Log.e("TAG", "onCharacteristicNotified: " + ByteToString(result));
+            handleResult(result);
+        }
+    }
+
+    private void handleResult(byte[] result) {
+        if (callback == null)
+            return;
+        if (result[0] == 6 && result[1] == 2 && result[2] == 8) {
+            callback.commandExecuted(OperationStatus.AUTHENTICATED);
+            deviceToken[0] = result[3];
+            deviceToken[1] = result[4];
+            deviceToken[2] = result[5];
+            deviceToken[3] = result[6];
+            getStatus();
+        } else if ((result[0] == 5 && result[1] == 15 && result[2] == 1 && result[3] == 0) ||
+                (result[0] == 5 && result[1] == 2 && result[2] == 1 && result[3] == 0)) {
+            callback.commandExecuted(OperationStatus.UNLOCKED);
+        } else if ((result[0] == 5 && result[1] == 15 && result[2] == 1 && result[3] == 1) ||
+                (result[0] == 5 && result[1] == 8 && result[2] == 1 && result[3] == 0)) {
+            callback.commandExecuted(OperationStatus.LOCKED);
+        } else if (result[0] == 2 && result[1] == 2 && result[2] == 1) {
+            callback.commandExecuted(OperationStatus.BATTERY, ByteToString(result).substring(6, 8));
         }
     }
 

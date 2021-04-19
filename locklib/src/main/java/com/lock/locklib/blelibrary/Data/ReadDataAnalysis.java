@@ -38,7 +38,6 @@ public class ReadDataAnalysis {
 
     public static void Read(Context context, BleItem bleItem, byte[] bArr, CommandCallback callback) {
         if (bArr.length >= 16) {
-            Log.e(TAG, "Read: " + bArr + " " + bArr.length );
             byte[] read2 = BleCommon.read(bArr);
             Log.e(TAG, "BYTES READ =" + BleTool.ByteToString(read2));
             String res = BleTool.ByteToString2(read2);

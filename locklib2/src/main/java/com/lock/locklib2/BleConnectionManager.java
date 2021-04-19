@@ -43,11 +43,11 @@ public class BleConnectionManager implements ConnectionObserver {
                 .enqueue();
     }
 
-    public BleConnectionManager(Context context) {
+    public BleConnectionManager(Context context, CommandCallback callback) {
         this.context = context;
         initialize(context);
         if (manager == null) {
-            manager = new LockLibManager(context);
+            manager = new LockLibManager(context, callback);
             manager.setConnectionObserver(this);
         }
     }
@@ -64,12 +64,6 @@ public class BleConnectionManager implements ConnectionObserver {
                 manager.connectDevice(mBluetoothAdapter.getRemoteDevice(addr));
             }
         }, 800);
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                manager.unlockBlack();
-//            }
-//        }, 2000);
     }
 
     public void connect(String address) {
