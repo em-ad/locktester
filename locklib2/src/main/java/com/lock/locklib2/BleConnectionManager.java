@@ -39,6 +39,7 @@ public class BleConnectionManager implements ConnectionObserver {
 
         manager.connect(device)
                 .timeout(3000)
+                .useAutoConnect(true)
                 .retry(3, 100)
                 .done(connecting -> Log.e("TAG", "Device initiated" + device.getAddress()))
                 .enqueue();
