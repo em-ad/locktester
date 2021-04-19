@@ -66,10 +66,6 @@ public class BleConnectionManager implements ConnectionObserver {
         }, 800);
     }
 
-    public void connect(String address) {
-        connect(mBluetoothAdapter.getRemoteDevice(address));
-    }
-
     public boolean initialize(Context context) {
         if (this.mBluetoothManager == null) {
             this.mBluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
@@ -105,7 +101,6 @@ public class BleConnectionManager implements ConnectionObserver {
     @Override
     public void onDeviceFailedToConnect(@NonNull BluetoothDevice device, int reason) {
         Log.e(TAG, "onDeviceFailedToConnect: " + device.getAddress() + " BECAUSE " + ConnectionReason.getValue(reason));
-        Toast.makeText(context, device.getAddress() + " Failed To Connect Because " + ConnectionReason.getValue(reason), Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -122,6 +117,5 @@ public class BleConnectionManager implements ConnectionObserver {
     @Override
     public void onDeviceDisconnected(@NonNull BluetoothDevice device, int reason) {
         Log.e(TAG, "onDeviceDisconnected: " + device.getAddress() + " BECAUSE " + ConnectionReason.getValue(reason));
-        Toast.makeText(context, device.getAddress() + " Disconnected Because " + ConnectionReason.getValue(reason), Toast.LENGTH_SHORT).show();
     }
 }
