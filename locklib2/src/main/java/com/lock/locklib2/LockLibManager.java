@@ -81,7 +81,7 @@ public class LockLibManager extends BleManager {
         connect(s)
                 .timeout(3000)
                 .retry(3, 100)
-                .setHandler(mHandler)
+                .useAutoConnect(true)
                 .done(connecting -> authenticateBlack())
                 .enqueue();
         device = s;
@@ -158,7 +158,7 @@ public class LockLibManager extends BleManager {
                             Log.e("TAG", "onDataSent: " + device.getName() + " " + Decrypt(data.getValue()));
                         }
                     }))
-                    .done(callback -> Log.e("tag", "Authenticated Black"))
+                    .done(callback -> Log.e("tag", "Authenticated"))
                     .enqueue();
 
             beginReliableWrite().add(readCharacteristic(mReadCharacteristic).with(new DataReceivedCallback() {
@@ -280,7 +280,6 @@ public class LockLibManager extends BleManager {
         byteArrayOutputStream.write(bArr, 0, bArr.length);
         Log.e("TAG", "Encrypting " + ByteToString(byteArrayOutputStream.toByteArray()));
         byte[] Encrypt = Encrypt(byteArrayOutputStream.toByteArray());
-        Log.e("TAG", "addCrcAndEnd: " + Encrypt);
         return Encrypt;
     }
 
@@ -300,7 +299,6 @@ public class LockLibManager extends BleManager {
     }
 
     public static byte[] Decrypt(byte[] bArr) {
-        Log.e("TAG", "Decrypt: " + bArr + " " + bArr.length);
         try {
             SecretKeySpec secretKeySpec = new SecretKeySpec(defaultkey, "AES");
             Cipher instance = Cipher.getInstance("AES/ECB/NoPadding");

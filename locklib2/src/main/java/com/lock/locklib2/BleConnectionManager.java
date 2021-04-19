@@ -2,27 +2,14 @@ package com.lock.locklib2;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattServerCallback;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
-import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
 import no.nordicsemi.android.ble.observer.ConnectionObserver;
-
-import static com.lock.locklib2.LockLibManager.ByteToString;
-import static com.lock.locklib2.LockLibManager.Decrypt;
 
 public class BleConnectionManager implements ConnectionObserver {
 
@@ -35,22 +22,12 @@ public class BleConnectionManager implements ConnectionObserver {
     private Context context;
     // [...]
 
-    private void connect(@NonNull final BluetoothDevice device) {
-
-        manager.connect(device)
-                .timeout(3000)
-                .useAutoConnect(true)
-                .retry(3, 100)
-                .done(connecting -> Log.e("TAG", "Device initiated" + device.getAddress()))
-                .enqueue();
-    }
-
     public BleConnectionManager(Context context, CommandCallback callback) {
         this.context = context;
         this.callback = callback;
         initialize(context);
         if (manager == null) {
-            manager = new LockLibManager(context, callback);
+            manager = new LockLibManager(context, this.callback);
             manager.setConnectionObserver(this);
         }
     }
@@ -97,7 +74,6 @@ public class BleConnectionManager implements ConnectionObserver {
 
     @Override
     public void onDeviceConnected(@NonNull BluetoothDevice device) {
-        Toast.makeText(context, device.getAddress() + " Connected", Toast.LENGTH_SHORT).show();
         Log.e(TAG, "onDeviceConnected: " + device.getAddress());
     }
 
