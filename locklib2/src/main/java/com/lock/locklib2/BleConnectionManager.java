@@ -31,6 +31,7 @@ public class BleConnectionManager implements ConnectionObserver {
     public LockLibManager manager;
     public BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
+    private CommandCallback callback;
     private Context context;
     // [...]
 
@@ -46,6 +47,7 @@ public class BleConnectionManager implements ConnectionObserver {
     public BleConnectionManager(Context context, CommandCallback callback) {
         this.context = context;
         initialize(context);
+        this.callback = callback;
         if (manager == null) {
             manager = new LockLibManager(context, callback);
             manager.setConnectionObserver(this);
@@ -117,5 +119,7 @@ public class BleConnectionManager implements ConnectionObserver {
     @Override
     public void onDeviceDisconnected(@NonNull BluetoothDevice device, int reason) {
         Log.e(TAG, "onDeviceDisconnected: " + device.getAddress() + " BECAUSE " + ConnectionReason.getValue(reason));
+        if (callback != null)
+            callback.commandExecuted(OperationStatus.DISCONNECTED);
     }
 }
