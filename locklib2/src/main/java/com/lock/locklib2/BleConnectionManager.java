@@ -46,8 +46,8 @@ public class BleConnectionManager implements ConnectionObserver {
 
     public BleConnectionManager(Context context, CommandCallback callback) {
         this.context = context;
-        initialize(context);
         this.callback = callback;
+        initialize(context);
         if (manager == null) {
             manager = new LockLibManager(context, callback);
             manager.setConnectionObserver(this);
