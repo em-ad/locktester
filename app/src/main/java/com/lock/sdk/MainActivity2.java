@@ -34,6 +34,14 @@ public class MainActivity2 extends AppCompatActivity implements CommandCallback 
             }
         });
 
+        binding.authenticate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mgr != null)
+                    mgr.manager.authenticateBlack();
+            }
+        });
+
         binding.unlock.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

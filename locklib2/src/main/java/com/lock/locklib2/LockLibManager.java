@@ -80,8 +80,8 @@ public class LockLibManager extends BleManager {
     public void connectDevice(BluetoothDevice s) {
         connect(s)
                 .timeout(3000)
-                .retry(3, 100)
-                .done(connecting -> authenticateBlack())
+                .retry(3, 300)
+                .done(connecting -> Log.e("?", "connectDevice: " ))
                 .enqueue();
         device = s;
     }
@@ -160,6 +160,7 @@ public class LockLibManager extends BleManager {
         if (device == null) {
             return false;
         } else {
+            Log.e("TAG", "authenticating: ");
             final BluetoothGattService service = gatt.getService(writeServiceUUID);
             if (service != null) {
                 mWriteCharacteristic = service.getCharacteristic(writeCharacteristicUUID);

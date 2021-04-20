@@ -35,6 +35,7 @@ public class BleConnectionManager implements ConnectionObserver {
     public void addDevice(String addr) {
         try {
             manager.disconnect().enqueue();
+            manager.close();
         } catch (NullPointerException npe) {
             npe.getStackTrace();
         }
@@ -70,11 +71,15 @@ public class BleConnectionManager implements ConnectionObserver {
     @Override
     public void onDeviceConnecting(@NonNull BluetoothDevice device) {
         Log.e(TAG, "onDeviceConnecting: " + device.getAddress());
+        if (callback != null)
+            callback.commandExecuted(OperationStatus.CONNECTING);
     }
 
     @Override
     public void onDeviceConnected(@NonNull BluetoothDevice device) {
         Log.e(TAG, "onDeviceConnected: " + device.getAddress());
+        if (callback != null)
+            callback.commandExecuted(OperationStatus.CONNECTED);
     }
 
     @Override
