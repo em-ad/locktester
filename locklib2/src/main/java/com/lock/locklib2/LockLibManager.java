@@ -81,7 +81,6 @@ public class LockLibManager extends BleManager {
         connect(s)
                 .timeout(3000)
                 .retry(3, 100)
-                .useAutoConnect(true)
                 .done(connecting -> authenticateBlack())
                 .enqueue();
         device = s;
@@ -90,6 +89,11 @@ public class LockLibManager extends BleManager {
     public void unlockBlack() {
         if (gatt == null) {
             Log.e("TAG", "unlockBlack: " + " fuck gatt is null");
+        }
+        final BluetoothGattService service = gatt.getService(writeServiceUUID);
+        if (service != null) {
+            mWriteCharacteristic = service.getCharacteristic(writeCharacteristicUUID);
+            mReadCharacteristic = service.getCharacteristic(readCharacteristicUUID);
         }
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(16);
         byteArrayOutputStream.write(mUnlockAlt, 0, mUnlockAlt.length);
@@ -114,6 +118,11 @@ public class LockLibManager extends BleManager {
         if (gatt == null) {
             Log.e("TAG", "getStatus: " + " fuck gatt is null");
         }
+        final BluetoothGattService service = gatt.getService(writeServiceUUID);
+        if (service != null) {
+            mWriteCharacteristic = service.getCharacteristic(writeCharacteristicUUID);
+            mReadCharacteristic = service.getCharacteristic(readCharacteristicUUID);
+        }
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(16);
         byteArrayOutputStream.write(mStatus, 0, mStatus.length);
         byteArrayOutputStream.write(deviceToken, 0, deviceToken.length);
@@ -129,6 +138,11 @@ public class LockLibManager extends BleManager {
     public void getBattery() {
         if (gatt == null) {
             Log.e("TAG", "getBattery: " + " fuck gatt is null");
+        }
+        final BluetoothGattService service = gatt.getService(writeServiceUUID);
+        if (service != null) {
+            mWriteCharacteristic = service.getCharacteristic(writeCharacteristicUUID);
+            mReadCharacteristic = service.getCharacteristic(readCharacteristicUUID);
         }
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(16);
         byteArrayOutputStream.write(mBattery, 0, mBattery.length);
@@ -146,6 +160,11 @@ public class LockLibManager extends BleManager {
         if (device == null) {
             return false;
         } else {
+            final BluetoothGattService service = gatt.getService(writeServiceUUID);
+            if (service != null) {
+                mWriteCharacteristic = service.getCharacteristic(writeCharacteristicUUID);
+                mReadCharacteristic = service.getCharacteristic(readCharacteristicUUID);
+            }
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             byteArrayOutputStream.write(mToKenAlt, 0, mToKenAlt.length);
             mWriteCharacteristic.getWriteType();
