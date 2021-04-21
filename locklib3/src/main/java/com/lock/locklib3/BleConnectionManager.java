@@ -50,6 +50,11 @@ public class BleConnectionManager implements ConnectionObserver {
         }, 800);
     }
 
+    public void setTimeOut(long l){
+        if(manager != null)
+            manager.setTimeoutLength(l);
+    }
+
     public void unlock(String address, UnlockCallback callback){
         manager.statusCallback = null;
         manager.batteryCallback = null;

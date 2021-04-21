@@ -1,6 +1,7 @@
 package com.lock.sdk;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -56,11 +57,13 @@ public class MainActivity3 extends AppCompatActivity {
                     mgr.unlock(BleUtil.convertAddress(binding.editText.getText().toString()), new UnlockCallback() {
                         @Override
                         public void unlocked() {
+                            Log.e("TAG", "unlocked: " );
                             binding.selected.status.setText("UNLOCK SUCCESSFUL");
                         }
 
                         @Override
                         public void failed() {
+                            Log.e("sfsd", "failed: " );
                             binding.selected.status.setText("UNLOCK FAILED");
                         }
                     });

@@ -53,15 +53,17 @@ public class LockLibManager extends BleManager {
     public static final byte[] mStatus = {5, 14, 1, 1};
     public static final byte[] mBattery = {2, 1, 1, 1};
     private static final String password = "000000";
+    private static long timeoutLength = 4000L;
 
     BluetoothGatt gatt;
 
     private BluetoothGattCharacteristic mWriteCharacteristic;
     private BluetoothGattCharacteristic mReadCharacteristic;
 
-    CountDownTimer timeout = new CountDownTimer(5000, 500) {
+    CountDownTimer timeout = new CountDownTimer(timeoutLength, 500) {
         @Override
         public void onTick(long millisUntilFinished) {
+            Log.e("TAG", "onTick: " );
         }
 
         @Override
@@ -86,6 +88,10 @@ public class LockLibManager extends BleManager {
 
     public LockLibManager(@NonNull Context context) {
         super(context);
+    }
+
+    public static void setTimeoutLength(long timeoutLength) {
+        LockLibManager.timeoutLength = timeoutLength;
     }
 
     public void setBatteryCallback(BatteryCallback batteryCallback) {
@@ -115,12 +121,13 @@ public class LockLibManager extends BleManager {
     }
 
     public void connectDevice(BluetoothDevice s) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                timeout.start();
-            }
-        });
+//        new Handler(Looper.getMainLooper()).post(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//            }
+//        });
+        timeout.start();
         if (device == null || !device.getDevice().getAddress().equals(s.getAddress()))
             device = new LockBluetoothDevice(s);
         if( device != null && device.isConnected() && device.hasToken())
@@ -316,23 +323,44 @@ public class LockLibManager extends BleManager {
         } else if ((result[0] == 5 && result[1] == 15 && result[2] == 1 && result[3] == 0) ||
                 (result[0] == 5 && result[1] == 2 && result[2] == 1 && result[3] == 0)) {
             if (unlockCallback != null) {
-                unlockCallback.unlocked();
-                unlockCallback = null;
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        unlockCallback.unlocked();
+                        cancelTimer();
+                        unlockCallback = null;                    }
+                });
             }
             if (statusCallback != null) {
-                statusCallback.statusReceived(LockStatusEnum.UNLOCKED);
-                statusCallback = null;
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        cancelTimer();
+                        statusCallback.statusReceived(LockStatusEnum.UNLOCKED);
+                        statusCallback = null;                   }
+                });
             }
         } else if ((result[0] == 5 && result[1] == 15 && result[2] == 1 && result[3] == 1) ||
                 (result[0] == 5 && result[1] == 8 && result[2] == 1 && result[3] == 0)) {
             if (statusCallback != null) {
-                statusCallback.statusReceived(LockStatusEnum.LOCKED);
-                statusCallback = null;
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        cancelTimer();
+                        statusCallback.statusReceived(LockStatusEnum.LOCKED);
+                        statusCallback = null;                }
+                });
             }
         } else if (result[0] == 2 && result[1] == 2 && result[2] == 1) {
             if (batteryCallback != null) {
-                batteryCallback.batteryReceived(ByteToString(result).substring(6, 8));
-                batteryCallback = null;
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        cancelTimer();
+                        batteryCallback.batteryReceived(ByteToString(result).substring(6, 8));
+                        batteryCallback = null;
+                    }
+                });
             }
         }
     }
@@ -371,6 +399,12 @@ public class LockLibManager extends BleManager {
             Log.e("TAG", "Decrypt EXCEPTION: " + unused.getMessage());
             return null;
         }
+    }
+
+    public void cancelTimer(){
+        if(timeout == null)
+            return;
+        timeout.cancel();
     }
 
     public static String ByteToString(byte[] bArr) {

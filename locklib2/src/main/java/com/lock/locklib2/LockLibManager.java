@@ -55,15 +55,6 @@ public class LockLibManager extends BleManager {
     private BluetoothGattCharacteristic mWriteCharacteristic;
     private BluetoothGattCharacteristic mReadCharacteristic;
 
-    @SuppressLint({"HandlerLeak"})
-    Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            super.handleMessage(msg);
-            Log.e("TAG", "handleMessage: " + new Gson().toJson(msg.getData().getByteArray("key")));
-        }
-    };
-
     public LockLibManager(@NonNull Context context, CommandCallback callback) {
         super(context);
         this.callback = callback;
