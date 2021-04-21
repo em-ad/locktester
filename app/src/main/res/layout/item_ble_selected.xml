@@ -31,7 +31,7 @@
         <TextView
             android:id="@+id/address"
             android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_weight="0"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:ellipsize="end"
@@ -42,7 +42,7 @@
         <TextView
             android:id="@+id/password"
             android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_weight="0"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
             android:gravity="right"
@@ -51,7 +51,7 @@
         <TextView
             android:id="@+id/status"
             android:layout_width="0dp"
-            android:layout_weight="1.5"
+            android:layout_weight="3.5"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
             android:gravity="center"

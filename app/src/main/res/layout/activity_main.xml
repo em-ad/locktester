@@ -81,19 +81,6 @@
             android:background="@android:drawable/screen_background_dark_transparent" />
 
         <TextView
-            android:id="@+id/disconnect"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:gravity="center"
-            android:text="Disconnect"
-            android:textColor="@color/white"
-            android:visibility="gone"
-            android:layout_marginBottom="12dp"
-            android:background="@android:drawable/screen_background_dark_transparent" />
-
-        <TextView
             android:id="@+id/getStatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -114,6 +101,19 @@
             android:gravity="center"
             android:text="Query Battery"
             android:textColor="@color/white"
+            android:layout_marginBottom="12dp"
+            android:background="@android:drawable/screen_background_dark_transparent" />
+
+        <TextView
+            android:id="@+id/disconnect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:gravity="center"
+            android:text="Disconnect"
+            android:textColor="@color/white"
+            android:visibility="visible"
             android:layout_marginBottom="12dp"
             android:background="@android:drawable/screen_background_dark_transparent" />
 

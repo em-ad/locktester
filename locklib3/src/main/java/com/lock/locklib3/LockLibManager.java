@@ -45,8 +45,11 @@ public class LockLibManager extends BleManager {
     protected LockBluetoothDevice device;
 
     public BatteryCallback batteryCallback;
+    int batteryFailed = 0;
     public StatusCallback statusCallback;
+    int statusFailed = 0;
     public UnlockCallback unlockCallback;
+    int unlockFailed = 0;
 
     public static final byte[] mToKenAlt = {6, 1, 1, 1};
     public static final byte[] mUnlockAlt = {5, 1, 6};
@@ -54,6 +57,7 @@ public class LockLibManager extends BleManager {
     public static final byte[] mBattery = {2, 1, 1, 1};
     private static final String password = "000000";
     private static long timeoutLength = 4000L;
+    public int retryCount = 4;
 
     BluetoothGatt gatt;
 
@@ -63,17 +67,43 @@ public class LockLibManager extends BleManager {
     CountDownTimer timeout = new CountDownTimer(timeoutLength, 500) {
         @Override
         public void onTick(long millisUntilFinished) {
-            Log.e("TAG", "onTick: " );
         }
 
         @Override
         public void onFinish() {
-            if(batteryCallback != null)
-                batteryCallback.failed();
-            if(statusCallback != null)
-                statusCallback.failed();
-            if(unlockCallback != null)
-                unlockCallback.failed();
+            if(batteryCallback != null) {
+                if(batteryFailed >= retryCount) {
+                    batteryCallback.failed();
+                    timeout.cancel();
+                    disconnectDevices();
+                    batteryFailed = 0;
+                }else {
+                    batteryFailed ++;
+                    reconnect();
+                }
+            }
+            if(statusCallback != null) {
+                if(statusFailed >= retryCount) {
+                    statusCallback.failed();
+                    disconnectDevices();
+                    timeout.cancel();
+                    statusFailed = 0;
+                }else {
+                    statusFailed ++;
+                    reconnect();
+                }
+            }
+            if(unlockCallback != null) {
+                if(unlockFailed >= retryCount) {
+                    unlockCallback.failed();
+                    disconnectDevices();
+                    timeout.cancel();
+                    unlockFailed = 0;
+                }else {
+                    unlockFailed ++;
+                    reconnect();
+                }
+            }
         }
     };
 
@@ -85,6 +115,22 @@ public class LockLibManager extends BleManager {
             Log.e("TAG", "handleMessage: " + new Gson().toJson(msg.getData().getByteArray("key")));
         }
     };
+
+    private void reconnect(){
+        if(device == null || device.getDevice() == null)
+            return;
+        try {
+            disconnect().enqueue();
+        } catch (NullPointerException npe) {
+            npe.getStackTrace();
+        }
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                connectDevice(device.getDevice());
+            }
+        }, 800);
+    }
 
     public LockLibManager(@NonNull Context context) {
         super(context);
@@ -112,21 +158,20 @@ public class LockLibManager extends BleManager {
         this.statusCallback = null;
     }
 
+    public void setRetryCount(int retryCount) {
+        this.retryCount = retryCount;
+    }
+
     public LockLibManager(@NonNull Context context, @NonNull Handler handler) {
         super(context, handler);
     }
 
     public void disconnectDevices() {
         disconnect().enqueue();
+//        close();
     }
 
     public void connectDevice(BluetoothDevice s) {
-//        new Handler(Looper.getMainLooper()).post(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//            }
-//        });
         timeout.start();
         if (device == null || !device.getDevice().getAddress().equals(s.getAddress()))
             device = new LockBluetoothDevice(s);
@@ -135,7 +180,7 @@ public class LockLibManager extends BleManager {
         connect(s)
                 .timeout(3000)
                 .retry(3, 300)
-                .done(connecting -> Log.e("?", "connect command sent"))
+                .done(connecting -> authenticateBlack())
                 .enqueue();
     }
 
@@ -326,8 +371,8 @@ public class LockLibManager extends BleManager {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
+                        disconnectDevices();
                         unlockCallback.unlocked();
-                        cancelTimer();
                         unlockCallback = null;                    }
                 });
             }
@@ -335,7 +380,7 @@ public class LockLibManager extends BleManager {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        cancelTimer();
+                        disconnectDevices();
                         statusCallback.statusReceived(LockStatusEnum.UNLOCKED);
                         statusCallback = null;                   }
                 });
@@ -346,7 +391,7 @@ public class LockLibManager extends BleManager {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        cancelTimer();
+                        disconnectDevices();
                         statusCallback.statusReceived(LockStatusEnum.LOCKED);
                         statusCallback = null;                }
                 });
@@ -356,7 +401,7 @@ public class LockLibManager extends BleManager {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        cancelTimer();
+                        disconnectDevices();
                         batteryCallback.batteryReceived(ByteToString(result).substring(6, 8));
                         batteryCallback = null;
                     }

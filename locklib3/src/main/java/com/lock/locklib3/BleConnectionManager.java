@@ -36,6 +36,9 @@ public class BleConnectionManager implements ConnectionObserver {
     }
 
     public void addDevice(String addr) {
+        manager.batteryFailed = 0;
+        manager.statusFailed = 0;
+        manager.unlockFailed = 0;
         try {
             myDcCommand = true;
             manager.disconnect().enqueue();
@@ -50,12 +53,12 @@ public class BleConnectionManager implements ConnectionObserver {
         }, 800);
     }
 
-    public void setTimeOut(long l){
-        if(manager != null)
+    public void setTimeOut(long l) {
+        if (manager != null)
             manager.setTimeoutLength(l);
     }
 
-    public void unlock(String address, UnlockCallback callback){
+    public void unlock(String address, UnlockCallback callback) {
         manager.statusCallback = null;
         manager.batteryCallback = null;
         manager.unlockCallback = null;
@@ -63,7 +66,7 @@ public class BleConnectionManager implements ConnectionObserver {
         addDevice(address);
     }
 
-    public void getBattery(String address, BatteryCallback callback){
+    public void getBattery(String address, BatteryCallback callback) {
         manager.statusCallback = null;
         manager.batteryCallback = null;
         manager.unlockCallback = null;
@@ -71,7 +74,7 @@ public class BleConnectionManager implements ConnectionObserver {
         addDevice(address);
     }
 
-    public void getStatus(String address, StatusCallback callback){
+    public void getStatus(String address, StatusCallback callback) {
         manager.statusCallback = null;
         manager.batteryCallback = null;
         manager.unlockCallback = null;
@@ -108,6 +111,7 @@ public class BleConnectionManager implements ConnectionObserver {
     @Override
     public void onDeviceConnected(@NonNull BluetoothDevice device) {
         Log.e(TAG, "onDeviceConnected: " + device.getAddress());
+        manager.device.setConnected(true);
     }
 
     @Override
@@ -118,7 +122,7 @@ public class BleConnectionManager implements ConnectionObserver {
     @Override
     public void onDeviceReady(@NonNull BluetoothDevice device) {
         Log.e(TAG, "onDeviceReady: " + device.getAddress());
-        manager.authenticateBlack();
+//        manager.authenticateBlack();
     }
 
     @Override
@@ -129,13 +133,37 @@ public class BleConnectionManager implements ConnectionObserver {
     @Override
     public void onDeviceDisconnected(@NonNull BluetoothDevice device, int reason) {
         Log.e(TAG, "onDeviceDisconnected: " + device.getAddress() + " BECAUSE " + ConnectionReason.getValue(reason) + " " + myDcCommand);
-        if(!myDcCommand) {
-            if (manager.unlockCallback != null)
-                manager.unlockCallback.failed();
-            if (manager.statusCallback != null)
-                manager.statusCallback.failed();
-            if (manager.batteryCallback != null)
-                manager.batteryCallback.failed();
+        manager.device.setConnected(false);
+        manager.device.setToken(new byte[4]);
+        if (!myDcCommand) {
+            if (manager.unlockCallback != null) {
+                if (manager.unlockFailed >= manager.retryCount) {
+                    manager.unlockCallback.failed();
+                    manager.disconnectDevices();
+                } else {
+                    manager.unlockFailed++;
+                    addDevice(device.getAddress());
+                }
+            }
+            if (manager.statusCallback != null) {
+                if (manager.statusFailed >= manager.retryCount) {
+                    manager.statusCallback.failed();
+                    manager.disconnectDevices();
+                } else {
+                    manager.statusFailed++;
+                    addDevice(device.getAddress());
+                }
+            }
+            if (manager.batteryCallback != null) {
+                if (manager.batteryFailed >= manager.retryCount) {
+                    manager.batteryCallback.failed();
+                    manager.disconnectDevices();
+                } else {
+                    manager.batteryFailed++;
+                    addDevice(device.getAddress());
+                }
+            }
+
         } else {
             myDcCommand = false;
         }

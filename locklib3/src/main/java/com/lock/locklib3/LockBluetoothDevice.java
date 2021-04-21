@@ -52,7 +52,7 @@ public class LockBluetoothDevice {
     }
 
     public boolean hasToken() {
-        Log.e("token", "hasToken: " + token );
+        Log.e("token", "hasToken: " + ByteToString(token) );
         return true;
     }
 }

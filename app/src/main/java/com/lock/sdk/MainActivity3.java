@@ -29,10 +29,13 @@ public class MainActivity3 extends AppCompatActivity {
             @Override
             public void run() {
                 mgr = new BleConnectionManager(MainActivity3.this);
+                mgr.setTimeOut(3000);
+                mgr.manager.setRetryCount(4);
             }
         });
-        binding.editText.setText("0103b8804f53af4f");
-//        BleUtil.convertAddress("0103b8804f53af4f");
+        binding.editText.setText("0103b8804f53af4f"); //black
+//        binding.editText.setText("01039884e3cff171"); //grey
+//        BleUtil.convertAddress("01039884e3cff171"); //grey
         binding.connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -57,13 +60,11 @@ public class MainActivity3 extends AppCompatActivity {
                     mgr.unlock(BleUtil.convertAddress(binding.editText.getText().toString()), new UnlockCallback() {
                         @Override
                         public void unlocked() {
-                            Log.e("TAG", "unlocked: " );
                             binding.selected.status.setText("UNLOCK SUCCESSFUL");
                         }
 
                         @Override
                         public void failed() {
-                            Log.e("sfsd", "failed: " );
                             binding.selected.status.setText("UNLOCK FAILED");
                         }
                     });
@@ -105,6 +106,13 @@ public class MainActivity3 extends AppCompatActivity {
                             binding.selected.status.setText("STATUS:" + state);
                         }
                     });
+            }
+        });
+
+        binding.disconnect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mgr.manager.disconnectDevices();
             }
         });
     }
