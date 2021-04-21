@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements ClickCallback, Co
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         {
-            startActivity(new Intent(this, MainActivity2.class));
+            startActivity(new Intent(this, MainActivity3.class));
             finish();
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

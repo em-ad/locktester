@@ -22,6 +22,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LockTester">
         <activity android:name=".MainActivity2"></activity>
+        <activity android:name=".MainActivity3"></activity>
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait">

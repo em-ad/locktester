@@ -48,6 +48,7 @@
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:gravity="center"
+            android:visibility="gone"
             android:text="Connect"
             android:textColor="@color/white"
             android:layout_marginBottom="12dp"
@@ -62,6 +63,7 @@
             android:paddingBottom="10dp"
             android:gravity="center"
             android:text="Authenticate"
+            android:visibility="gone"
             android:textColor="@color/white"
             android:layout_marginBottom="12dp"
             android:background="@android:drawable/screen_background_dark_transparent" />
@@ -87,6 +89,7 @@
             android:gravity="center"
             android:text="Disconnect"
             android:textColor="@color/white"
+            android:visibility="gone"
             android:layout_marginBottom="12dp"
             android:background="@android:drawable/screen_background_dark_transparent" />
 
