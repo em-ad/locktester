@@ -117,6 +117,7 @@ public class BleConnectionManager implements ConnectionObserver {
     @Override
     public void onDeviceFailedToConnect(@NonNull BluetoothDevice device, int reason) {
         Log.e(TAG, "onDeviceFailedToConnect: " + device.getAddress() + " BECAUSE " + ConnectionReason.getValue(reason));
+        onDeviceDisconnected(device, reason);
     }
 
     @Override
