@@ -1,5 +1,7 @@
 package com.lock.locklib3;
 
+import static no.nordicsemi.android.ble.ConnectionPriorityRequest.CONNECTION_PRIORITY_BALANCED;
+
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -21,6 +23,7 @@ import com.lock.locklib3.callback.StatusCallback;
 import com.lock.locklib3.callback.UnlockCallback;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.UUID;
 
@@ -31,8 +34,6 @@ import no.nordicsemi.android.ble.BleManager;
 import no.nordicsemi.android.ble.callback.DataReceivedCallback;
 import no.nordicsemi.android.ble.callback.DataSentCallback;
 import no.nordicsemi.android.ble.data.Data;
-
-import static no.nordicsemi.android.ble.ConnectionPriorityRequest.CONNECTION_PRIORITY_BALANCED;
 
 public class LockLibManager extends BleManager {
 
@@ -71,36 +72,36 @@ public class LockLibManager extends BleManager {
 
         @Override
         public void onFinish() {
-            if(batteryCallback != null) {
-                if(batteryFailed >= retryCount) {
+            if (batteryCallback != null) {
+                if (batteryFailed >= retryCount) {
                     batteryCallback.failed();
                     timeout.cancel();
                     disconnectDevices();
                     batteryFailed = 0;
-                }else {
-                    batteryFailed ++;
+                } else {
+                    batteryFailed++;
                     reconnect();
                 }
             }
-            if(statusCallback != null) {
-                if(statusFailed >= retryCount) {
+            if (statusCallback != null) {
+                if (statusFailed >= retryCount) {
                     statusCallback.failed();
                     disconnectDevices();
                     timeout.cancel();
                     statusFailed = 0;
-                }else {
-                    statusFailed ++;
+                } else {
+                    statusFailed++;
                     reconnect();
                 }
             }
-            if(unlockCallback != null) {
-                if(unlockFailed >= retryCount) {
+            if (unlockCallback != null) {
+                if (unlockFailed >= retryCount) {
                     unlockCallback.failed();
                     disconnectDevices();
                     timeout.cancel();
                     unlockFailed = 0;
-                }else {
-                    unlockFailed ++;
+                } else {
+                    unlockFailed++;
                     reconnect();
                 }
             }
@@ -116,8 +117,8 @@ public class LockLibManager extends BleManager {
         }
     };
 
-    private void reconnect(){
-        if(device == null || device.getDevice() == null)
+    private void reconnect() {
+        if (device == null || device.getDevice() == null)
             return;
         try {
             disconnect().enqueue();
@@ -171,11 +172,14 @@ public class LockLibManager extends BleManager {
 //        close();
     }
 
+    // ####################
+    // STEP 1
+    // connect to device...
     public void connectDevice(BluetoothDevice s) {
         timeout.start();
         if (device == null || !device.getDevice().getAddress().equals(s.getAddress()))
             device = new LockBluetoothDevice(s);
-        if( device != null && device.isConnected() && device.hasToken())
+        if (device != null && device.isConnected() && device.hasToken())
             return;
         connect(s)
                 .timeout(3000)
@@ -184,7 +188,47 @@ public class LockLibManager extends BleManager {
                 .enqueue();
     }
 
+    // ####################
+    // STEP 2
+    // authenticate with device...
+    public boolean authenticateBlack() {
+        if (device == null) {
+            return false;
+        } else {
+            final BluetoothGattService service = gatt.getService(writeServiceUUID);
+            if (service != null) {
+                mWriteCharacteristic = service.getCharacteristic(writeCharacteristicUUID);
+                mReadCharacteristic = service.getCharacteristic(readCharacteristicUUID);
+            }
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            byteArrayOutputStream.write(mToKenAlt, 0, mToKenAlt.length);
+            mWriteCharacteristic.getWriteType();
+            mWriteCharacteristic.setValue(addCrcAndEnd(byteArrayOutputStream));
+            mWriteCharacteristic.setWriteType(1);
+            beginAtomicRequestQueue()
+                    .add(writeCharacteristic(mWriteCharacteristic, mWriteCharacteristic.getValue()).with(new DataSentCallback() {
+                        @Override
+                        public void onDataSent(@NonNull BluetoothDevice device, @NonNull Data data) {
+                            Log.e("TAG", "onDataSent: " + device.getName() + " " + Decrypt(data.getValue()));
+                        }
+                    }))
+                    .done(callback -> Log.e("tag", "Authenticate Command Sent!"))
+                    .enqueue();
+            beginReliableWrite()
+                    .add(readCharacteristic(mReadCharacteristic).with(new DataReceivedCallback() {
+                        @Override
+                        public void onDataReceived(@NonNull BluetoothDevice device, @NonNull Data data) {
+                            Log.e("TAG", "onDataReceived: " + device.getAddress() + " " + data.getValue() + " " + data.getValue().length);
+                        }
+                    }))
+                    .enqueue();
+            return true;
+        }
+    }
 
+    // ####################
+    // STEP 3
+    // unlock the device...
     public void unlockBlack() {
         if (gatt == null || device == null) {
             Log.e("TAG", "unlockBlack: ");
@@ -255,40 +299,6 @@ public class LockLibManager extends BleManager {
                 .enqueue();
     }
 
-    public boolean authenticateBlack() {
-        if (device == null) {
-            return false;
-        } else {
-            final BluetoothGattService service = gatt.getService(writeServiceUUID);
-            if (service != null) {
-                mWriteCharacteristic = service.getCharacteristic(writeCharacteristicUUID);
-                mReadCharacteristic = service.getCharacteristic(readCharacteristicUUID);
-            }
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            byteArrayOutputStream.write(mToKenAlt, 0, mToKenAlt.length);
-            mWriteCharacteristic.getWriteType();
-            mWriteCharacteristic.setValue(addCrcAndEnd(byteArrayOutputStream));
-            mWriteCharacteristic.setWriteType(1);
-            beginAtomicRequestQueue()
-                    .add(writeCharacteristic(mWriteCharacteristic, mWriteCharacteristic.getValue()).with(new DataSentCallback() {
-                        @Override
-                        public void onDataSent(@NonNull BluetoothDevice device, @NonNull Data data) {
-                            Log.e("TAG", "onDataSent: " + device.getName() + " " + Decrypt(data.getValue()));
-                        }
-                    }))
-                    .done(callback -> Log.e("tag", "Authenticate Command Sent!"))
-                    .enqueue();
-
-            beginReliableWrite().add(readCharacteristic(mReadCharacteristic).with(new DataReceivedCallback() {
-                @Override
-                public void onDataReceived(@NonNull BluetoothDevice device, @NonNull Data data) {
-                    Log.e("TAG", "onDataReceived: " + device.getAddress() + " " + data.getValue() + " " + data.getValue().length);
-                }
-            })).enqueue();
-            return true;
-        }
-    }
-
     @NonNull
     @Override
     public BleManagerGattCallback getGattCallback() {
@@ -353,16 +363,18 @@ public class LockLibManager extends BleManager {
     }
 
     private void handleResult(byte[] result) {
+        Log.i("TAG", "handleResultMamad: " + Arrays.toString(result));
         if (result[0] == 6 && result[1] == 2 && result[2] == 8) {
             device.setToken(0, result[3]);
             device.setToken(1, result[4]);
             device.setToken(2, result[5]);
             device.setToken(3, result[6]);
-            if(batteryCallback != null){
+
+            if (batteryCallback != null) {
                 getBattery();
-            } else if (statusCallback != null){
+            } else if (statusCallback != null) {
                 getStatus();
-            } else if (unlockCallback != null){
+            } else if (unlockCallback != null) {
                 unlockBlack();
             }
         } else if ((result[0] == 5 && result[1] == 15 && result[2] == 1 && result[3] == 0) ||
@@ -373,7 +385,8 @@ public class LockLibManager extends BleManager {
                     public void run() {
                         disconnectDevices();
                         unlockCallback.unlocked();
-                        unlockCallback = null;                    }
+                        unlockCallback = null;
+                    }
                 });
             }
             if (statusCallback != null) {
@@ -382,7 +395,8 @@ public class LockLibManager extends BleManager {
                     public void run() {
                         disconnectDevices();
                         statusCallback.statusReceived(LockStatusEnum.UNLOCKED);
-                        statusCallback = null;                   }
+                        statusCallback = null;
+                    }
                 });
             }
         } else if ((result[0] == 5 && result[1] == 15 && result[2] == 1 && result[3] == 1) ||
@@ -393,7 +407,8 @@ public class LockLibManager extends BleManager {
                     public void run() {
                         disconnectDevices();
                         statusCallback.statusReceived(LockStatusEnum.LOCKED);
-                        statusCallback = null;                }
+                        statusCallback = null;
+                    }
                 });
             }
         } else if (result[0] == 2 && result[1] == 2 && result[2] == 1) {
@@ -446,8 +461,8 @@ public class LockLibManager extends BleManager {
         }
     }
 
-    public void cancelTimer(){
-        if(timeout == null)
+    public void cancelTimer() {
+        if (timeout == null)
             return;
         timeout.cancel();
     }

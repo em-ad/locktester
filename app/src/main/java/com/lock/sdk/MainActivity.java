@@ -1,11 +1,9 @@
 package com.lock.sdk;
 
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.Manifest.permission.BLUETOOTH;
+import static android.Manifest.permission.CAMERA;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -13,41 +11,22 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.lock.locklib.LockTester;
 import com.lock.locklib.OperationStatus;
-import com.lock.locklib.blelibrary.Adapter.BleAdapter;
 import com.lock.locklib.blelibrary.CommandCallback;
 import com.lock.locklib.blelibrary.EventBean.ChangesDeviceEvent;
-import com.lock.locklib.blelibrary.EventBean.ChangesDeviceListEvent;
-import com.lock.locklib.blelibrary.EventBean.EventBean;
-import com.lock.locklib.blelibrary.EventBean.EventTool;
-import com.lock.locklib.blelibrary.EventBean.OtherEvent;
-import com.lock.locklib.blelibrary.EventBean.SaveBleEvent;
-import com.lock.locklib.blelibrary.EventBean.WriteDataEvent;
-import com.lock.locklib.blelibrary.base.BleBase;
-import com.lock.locklib.blelibrary.base.BleStatus;
-import com.lock.locklib.blelibrary.main.ServiceCommand;
-import com.lock.locklib.LockTester;
-import com.lock.locklib.blelibrary.notification.NotificationBean;
 import com.lock.locklib.blelibrary.search.SearchBle;
-import com.lock.locklib.blelibrary.search.SearchListener;
 import com.lock.sdk.databinding.ActivityMainBinding;
-
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
-import java.util.ArrayList;
-
-import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static android.Manifest.permission.BLUETOOTH;
-import static android.Manifest.permission.CAMERA;
 
 public class MainActivity extends AppCompatActivity implements ClickCallback, CommandCallback {
 
@@ -72,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements ClickCallback, Co
         setClickListeners();
 //        binding.editText.setText("0787f830022f2761");
 //        binding.editText.setText("0103b8804f5367a2");
-        binding.editText.setText("0103b8804f53af4f");
+        // binding.editText.setText("0103b8804f53af4f");
         LockTester.getInstance().getSelectedEventLiveData().observe(this, new Observer<ChangesDeviceEvent>() {
             @SuppressLint("SetTextI18n")
             @Override

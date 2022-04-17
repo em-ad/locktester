@@ -20,14 +20,17 @@ import com.lock.locklib.blelibrary.EventBean.WriteDataEvent;
 import com.lock.locklib.blelibrary.base.BleBase;
 import com.lock.locklib.blelibrary.base.BleStatus;
 import com.lock.locklib.blelibrary.tool.BleTool;
+
 import java.io.ByteArrayOutputStream;
 
 public class BleItem {
+
     private static final String TAG = "BleItem";
     private int RssiNum = 1;
     public ChangesDeviceEvent changesData;
     private Context context;
     private final int hanConnected = 1001;
+
     @SuppressLint({"HandlerLeak"})
     private Handler handler = new Handler() {
         public void handleMessage(Message message) {
@@ -230,7 +233,7 @@ public class BleItem {
             characteristic.getWriteType();
             characteristic.setValue(bArr);
             characteristic.setWriteType(1);
-            Log.e(TAG, "LostWriteData: " + characteristic.getValue() + " " + characteristic.getUuid() + " "  + characteristic.getService().getUuid() );
+            Log.e(TAG, "LostWriteData: " + characteristic.getValue() + " " + characteristic.getUuid() + " " + characteristic.getService().getUuid());
             boolean writeCharacteristic = this.mBluetoothGatt.writeCharacteristic(characteristic);
             String str = TAG;
             Log.e(str, writeCharacteristic + " WRITING LostWriteData " + BleTool.ByteToString(bArr));

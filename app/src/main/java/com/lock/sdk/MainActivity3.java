@@ -1,7 +1,6 @@
 package com.lock.sdk;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,7 +8,6 @@ import androidx.databinding.DataBindingUtil;
 
 import com.lock.locklib3.BleConnectionManager;
 import com.lock.locklib3.BleUtil;
-
 import com.lock.locklib3.LockStatusEnum;
 import com.lock.locklib3.callback.BatteryCallback;
 import com.lock.locklib3.callback.StatusCallback;
@@ -33,7 +31,9 @@ public class MainActivity3 extends AppCompatActivity {
                 mgr.manager.setRetryCount(4);
             }
         });
-        binding.editText.setText("0103b8804f53af4f"); //black
+        binding.editText.setText("0103b8804f53b4f4"); //black
+//        binding.editText.setText("0787f830022f2e8e"); //black
+        // binding.editText.setText("0103b8804f53af4f"); //black
 //        binding.editText.setText("01039884e3cff171"); //grey
 //        BleUtil.convertAddress("01039884e3cff171"); //grey
         binding.connect.setOnClickListener(new View.OnClickListener() {

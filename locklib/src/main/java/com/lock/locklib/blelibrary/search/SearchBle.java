@@ -11,12 +11,13 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
+
 import com.lock.locklib.blelibrary.EventBean.SaveBleEvent;
 import com.lock.locklib.blelibrary.base.BleBase;
 import com.lock.locklib.blelibrary.base.BleStatus;
-import com.lock.locklib.blelibrary.search.SearchListener;
 import com.lock.locklib.blelibrary.tool.BleSharedPreferences;
 import com.lock.locklib.blelibrary.tool.BleTool;
+
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;

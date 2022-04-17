@@ -1,6 +1,7 @@
 package com.lock.locklib2;
 
-import android.annotation.SuppressLint;
+import static no.nordicsemi.android.ble.ConnectionPriorityRequest.CONNECTION_PRIORITY_BALANCED;
+
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -8,12 +9,9 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-
-import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Random;
@@ -25,11 +23,7 @@ import javax.crypto.spec.SecretKeySpec;
 import no.nordicsemi.android.ble.BleManager;
 import no.nordicsemi.android.ble.callback.DataReceivedCallback;
 import no.nordicsemi.android.ble.callback.DataSentCallback;
-import no.nordicsemi.android.ble.callback.FailCallback;
-import no.nordicsemi.android.ble.callback.SuccessCallback;
 import no.nordicsemi.android.ble.data.Data;
-
-import static no.nordicsemi.android.ble.ConnectionPriorityRequest.CONNECTION_PRIORITY_BALANCED;
 
 public class LockLibManager extends BleManager {
 
@@ -72,7 +66,7 @@ public class LockLibManager extends BleManager {
         connect(s)
                 .timeout(3000)
                 .retry(3, 300)
-                .done(connecting -> Log.e("?", "connectDevice: " ))
+                .done(connecting -> Log.e("?", "connectDevice: "))
                 .enqueue();
         device = s;
     }

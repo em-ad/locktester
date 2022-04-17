@@ -7,12 +7,9 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.gson.Gson;
 import com.lock.locklib.OperationStatus;
 import com.lock.locklib.blelibrary.CommandCallback;
 import com.lock.locklib.blelibrary.EventBean.ChangesDeviceEvent;
@@ -94,7 +91,7 @@ public class BleAdapter extends BluetoothGattCallback {
         if (this.mBleTool.GetAdapter() == null || bleBase == null || TextUtils.isEmpty(bleBase.getAddress())) { //!TextUtils.isEmpty(this.Connecting) ||
             return false;
         }
-//        this.mBleTool.GetAdapter().getBluetoothLeScanner().startScan(new ScanCallback() {});
+        //        this.mBleTool.GetAdapter().getBluetoothLeScanner().startScan(new ScanCallback() {});
 //        this.mList.clear();
 //        for (BleItem bleItem : this.mList) {
 //            String str = TAG;
@@ -125,7 +122,7 @@ public class BleAdapter extends BluetoothGattCallback {
         if (remoteDevice == null) {
             return;
         }
-//        Iterator<BleItem> it = this.mList.iterator();
+        //        Iterator<BleItem> it = this.mList.iterator();
 //        while (it.hasNext()) {
 //            BleItem next = it.next();
 //            if (next.isDevice(bleBase.getAddress())) {
@@ -238,7 +235,7 @@ public class BleAdapter extends BluetoothGattCallback {
         }
     }
 
-    public void sendTokenAlt(BleBase bleBase){
+    public void sendTokenAlt(BleBase bleBase) {
         if (currentBle != null && currentBle.changesData.getmBleBase().getAddress().equals(bleBase.getAddress())) {
             currentBle.changesData.mBleBase.setPassWord(bleBase.getPassWord());
             currentBle.sendTokenAlt(bleBase);
@@ -383,7 +380,7 @@ public class BleAdapter extends BluetoothGattCallback {
 //            }
 //        }
 
-        Log.e(TAG, "onCharacteristicChanged: " + bluetoothGattCharacteristic.getValue() + " " + bluetoothGattCharacteristic.getValue().length );
+        Log.e(TAG, "onCharacteristicChanged: " + bluetoothGattCharacteristic.getValue() + " " + bluetoothGattCharacteristic.getValue().length);
 
         if (currentBle != null)
             currentBle.readData(bluetoothGattCharacteristic.getValue(), callback);

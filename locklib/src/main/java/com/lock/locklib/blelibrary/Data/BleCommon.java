@@ -8,6 +8,7 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
 public class BleCommon {
+
     private static final String TAG = "BleCommon";
     public static final byte[] defaultkey = {32, 87, 47, 82, 54, 75, 63, 71, 48, 80, 65, 88, 17, 99, 45, 43};
     public static final byte[] mAutoUnlockClose = {5, 39, 1, 1};
