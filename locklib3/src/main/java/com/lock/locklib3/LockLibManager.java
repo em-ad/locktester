@@ -176,6 +176,7 @@ public class LockLibManager extends BleManager {
     // STEP 1
     // connect to device...
     public void connectDevice(BluetoothDevice s) {
+        Log.i("TAGG", "connectDevice: ");
         timeout.start();
         if (device == null || !device.getDevice().getAddress().equals(s.getAddress()))
             device = new LockBluetoothDevice(s);
@@ -192,6 +193,7 @@ public class LockLibManager extends BleManager {
     // STEP 2
     // authenticate with device...
     public boolean authenticateBlack() {
+        Log.i("TAGG", "authenticateBlack: ");
         if (device == null) {
             return false;
         } else {
@@ -230,6 +232,8 @@ public class LockLibManager extends BleManager {
     // STEP 3
     // unlock the device...
     public void unlockBlack() {
+        Log.i("TAGG", "unlockBlack: ");
+
         if (gatt == null || device == null) {
             Log.e("TAG", "unlockBlack: ");
         }
